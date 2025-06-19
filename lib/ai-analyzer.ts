@@ -1,59 +1,70 @@
+// ไฟล์นี้ประกอบด้วยคลาสและฟังก์ชันสำหรับวิเคราะห์ความเข้าใจของผู้เรียนด้วย AI
+// รองรับทั้งโหมด mock (จำลอง), local API, Anthropic, Gemini และ OpenAI (บางส่วน)
+// มีการประเมินความเข้าใจ, ตรวจสอบความรู้, และให้ฟีดแบ็คเชิงลึก
+
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
+// ผลลัพธ์การวิเคราะห์ความเข้าใจของ AI
 export interface AIAnalysisResult {
-  comprehensionScore: number
-  isCorrect: boolean
-  factualAccuracy: number
-  feedback: string
-  strengths: string[]
-  areasForImprovement: string[]
-  suggestions: string[]
-  detailedExplanation: string
-  keyConcepts: string[]
-  misconceptions: string[]
-  confidenceLevel: 'high' | 'medium' | 'low'
+  comprehensionScore: number // คะแนนความเข้าใจ (0-100)
+  isCorrect: boolean // ถูกต้องหรือไม่
+  factualAccuracy: number // ความถูกต้องของข้อเท็จจริง (0-100)
+  feedback: string // ข้อเสนอแนะ (ภาษาไทย)
+  strengths: string[] // จุดแข็ง (ภาษาไทย)
+  areasForImprovement: string[] // จุดที่ควรปรับปรุง (ภาษาไทย)
+  suggestions: string[] // ข้อเสนอแนะเพิ่มเติม (ภาษาไทย)
+  detailedExplanation: string // คำอธิบายเชิงลึก (ภาษาไทย)
+  keyConcepts: string[] // แนวคิดสำคัญ
+  misconceptions: string[] // ความเข้าใจผิด (ภาษาไทย)
+  confidenceLevel: 'high' | 'medium' | 'low' // ระดับความมั่นใจ
 }
 
+// โครงสร้างเนื้อหาบทเรียน
 export interface LessonContent {
-  title: string
-  content: string
+  title: string // ชื่อบทเรียน
+  content: string // เนื้อหาหลัก
   sections: Array<{
-    title: string
-    content: string
+    title: string // ชื่อหัวข้อย่อย
+    content: string // เนื้อหาหัวข้อย่อย
   }>
-  summary: string
+  summary: string // สรุปเนื้อหา
 }
 
+// การตั้งค่าผู้ให้บริการ AI
 export interface AIProvider {
-  name: 'anthropic' | 'local' | 'mock' | 'gemini'
-  apiKey?: string
-  model?: string
-  temperature?: number
-  maxTokens?: number
+  name: 'anthropic' | 'local' | 'mock' | 'gemini' // ชื่อผู้ให้บริการ
+  apiKey?: string // คีย์ API
+  model?: string // ชื่อโมเดล
+  temperature?: number // ค่า temperature
+  maxTokens?: number // จำนวน token สูงสุด
 }
 
+// ผลลัพธ์การตรวจสอบความรู้
 export interface KnowledgeValidationResult {
-  overallAccuracy: number
+  overallAccuracy: number // ความถูกต้องโดยรวม (0-100)
   questionResults: Array<{
-    question: string
-    userAnswer: string
-    isCorrect: boolean
-    correctAnswer: string
-    explanation: string
+    question: string // คำถาม
+    userAnswer: string // คำตอบของผู้ใช้
+    isCorrect: boolean // ถูกต้องหรือไม่
+    correctAnswer: string // คำตอบที่ถูกต้อง
+    explanation: string // คำอธิบาย (ภาษาไทย)
   }>
-  confidence: number
+  confidence: number // ระดับความมั่นใจ (0-100)
 }
 
+// คลาสหลักสำหรับวิเคราะห์และตรวจสอบความเข้าใจของผู้เรียนด้วย AI
 export class AIAnalyzer {
   private static aiProvider: AIProvider = {
-    name: 'mock', // Default to mock for development
+    name: 'mock', // ค่าเริ่มต้นเป็น mock สำหรับการพัฒนา
     model: 'mock-model'
   }
 
+  // กำหนดค่าผู้ให้บริการ AI
   static configureAI(provider: AIProvider) {
     this.aiProvider = provider
   }
 
+  // วิเคราะห์ความเข้าใจของผู้เรียน (เลือก provider ตามที่ตั้งค่า)
   static async analyzeUnderstanding(
     lessonContent: LessonContent,
     userUnderstanding: string
@@ -72,12 +83,12 @@ export class AIAnalyzer {
       }
     } catch (error) {
       console.error('AI Analysis failed:', error)
-      // Fallback to mock analysis if AI service fails
+      // หากเกิดข้อผิดพลาดจะ fallback ไปที่ mock
       return await this.simulateAIAnalysis(lessonContent, userUnderstanding)
     }
   }
 
-  // Enhanced knowledge validation method
+  // ตรวจสอบความรู้ของผู้เรียน (Knowledge Validation)
   static async validateKnowledge(
     lessonContent: LessonContent,
     userUnderstanding: string,
@@ -97,6 +108,7 @@ export class AIAnalyzer {
     }
   }
 
+  // วิเคราะห์ด้วย OpenAI (ยังไม่ถูกเรียกใช้โดยตรง)
   private static async analyzeWithOpenAI(
     lessonContent: LessonContent,
     userUnderstanding: string
@@ -140,6 +152,7 @@ export class AIAnalyzer {
     return this.parseAIResponse(aiResponse, lessonContent, userUnderstanding)
   }
 
+  // วิเคราะห์ด้วย Anthropic (Claude)
   private static async analyzeWithAnthropic(
     lessonContent: LessonContent,
     userUnderstanding: string
@@ -179,6 +192,7 @@ export class AIAnalyzer {
     return this.parseAIResponse(aiResponse, lessonContent, userUnderstanding)
   }
 
+  // วิเคราะห์ด้วย Local API (API ภายในระบบ)
   private static async analyzeWithLocalAPI(
     lessonContent: LessonContent,
     userUnderstanding: string
@@ -206,6 +220,7 @@ export class AIAnalyzer {
     }
   }
 
+  // วิเคราะห์ด้วย Gemini (Google Generative AI)
   private static async analyzeWithGemini(
     lessonContent: LessonContent,
     userUnderstanding: string
@@ -234,6 +249,7 @@ export class AIAnalyzer {
     return this.parseAIResponse(aiResponse, lessonContent, userUnderstanding)
   }
 
+  // สร้าง prompt สำหรับวิเคราะห์ความเข้าใจ
   private static buildAnalysisPrompt(lessonContent: LessonContent, userUnderstanding: string): string {
     return `You are an expert educational AI that analyzes student understanding. Please analyze the following student's understanding of the lesson content.
 
@@ -271,6 +287,7 @@ Analysis guidelines:
 Focus on being constructive and educational. If the student's understanding is limited, provide encouraging feedback with specific guidance.`
   }
 
+  // สร้าง prompt สำหรับตรวจสอบความรู้
   private static buildValidationPrompt(
     lessonContent: LessonContent,
     userUnderstanding: string,
@@ -309,6 +326,7 @@ Respond in JSON format (respond ONLY with valid JSON):
 }`
   }
 
+  // เรียกใช้งาน AI provider เพื่อขอผลลัพธ์ (ใช้กับ validateKnowledge)
   private static async getAIResponse(prompt: string): Promise<string> {
     const provider = this.aiProvider
     
@@ -365,6 +383,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     }
   }
 
+  // แปลงผลลัพธ์จาก AI เป็น AIAnalysisResult
   private static parseAIResponse(aiResponse: string, lessonContent: LessonContent, userUnderstanding: string): AIAnalysisResult {
     try {
       // Clean the response to extract JSON
@@ -407,6 +426,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     }
   }
 
+  // แปลงผลลัพธ์จาก AI เป็น KnowledgeValidationResult
   private static parseValidationResponse(aiResponse: string): KnowledgeValidationResult {
     try {
       const jsonMatch = aiResponse.match(/\{[\s\S]*\}/)
@@ -420,6 +440,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     }
   }
 
+  // จำลองการตรวจสอบความรู้ (mock)
   private static simulateKnowledgeValidation(
     lessonContent: LessonContent,
     userUnderstanding: string,
@@ -454,6 +475,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     })
   }
 
+  // จำลองการวิเคราะห์ความเข้าใจ (mock)
   private static async simulateAIAnalysis(
     lessonContent: LessonContent,
     userUnderstanding: string
@@ -488,6 +510,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     }
   }
 
+  // ดึงแนวคิดสำคัญจากเนื้อหา (แบบง่าย)
   private static extractKeyConcepts(content: string): string[] {
     // Simple key concept extraction
     // In production, use NLP or AI to extract concepts
@@ -517,6 +540,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     ).slice(0, 10) // Limit to top 10 concepts
   }
 
+  // วิเคราะห์ความเข้าใจของผู้เรียนเทียบกับแนวคิดสำคัญ
   private static analyzeAgainstKeyConcepts(keyConcepts: string[], userUnderstanding: string): {
     strengths: string[]
     areasForImprovement: string[]
@@ -565,6 +589,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     }
   }
 
+  // ตรวจจับความเข้าใจผิดจากข้อความของผู้เรียน
   private static detectMisconceptions(userUnderstanding: string): string[] {
     const misconceptions: string[] = []
     
@@ -589,6 +614,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     return misconceptions
   }
 
+  // คำนวณคะแนนความเข้าใจ
   private static calculateComprehensionScore(analysis: {
     conceptMatches: number
     strengths: string[]
@@ -608,6 +634,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     return Math.round(score)
   }
 
+  // สร้างข้อความ feedback (ภาษาไทย)
   private static generateFeedback(
     analysis: {
       strengths: string[]
@@ -631,6 +658,7 @@ Respond in JSON format (respond ONLY with valid JSON):
     }
   }
 
+  // สร้างคำอธิบายเชิงลึก (ภาษาไทย)
   private static generateDetailedExplanation(
     lessonContent: LessonContent,
     userUnderstanding: string,
