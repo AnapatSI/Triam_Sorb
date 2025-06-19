@@ -8,10 +8,10 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Menu, X, BookOpen, Upload, History, MessageSquare } from "lucide-react"
 
 const navigation = [
-  { name: "Home", href: "/", icon: BookOpen },
-  { name: "Upload", href: "/upload", icon: Upload },
-  { name: "Learn", href: "/learn", icon: MessageSquare },
-  { name: "History", href: "/history", icon: History },
+  { name: "หน้าแรก", href: "/", icon: BookOpen },
+  { name: "อัปโหลด", href: "/upload", icon: Upload },
+  { name: "เรียนรู้", href: "/learn", icon: MessageSquare },
+  { name: "ประวัติ", href: "/history", icon: History },
 ]
 
 export default function Navbar() {
@@ -22,11 +22,11 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 px-6 py-4">
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-black to-gray-800 rounded-lg flex items-center justify-center">
             <BookOpen className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            LearnAI
+          <span className="text-xl font-bold bg-gradient-to-r from-black to-gray-800 bg-clip-text text-transparent">
+            TRIAM SORB
           </span>
         </Link>
 
@@ -41,7 +41,7 @@ export default function Navbar() {
                 href={item.href}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
                   isActive
-                    ? "bg-white/40 dark:bg-white/20 text-blue-600 dark:text-blue-400"
+                    ? "bg-white/40 dark:bg-white/20 text-black dark:text-white"
                     : "hover:bg-white/20 dark:hover:bg-white/10"
                 }`}
               >
@@ -54,7 +54,7 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center space-x-4">
           <ThemeToggle />
-          <Button className="glass-button">Sign In</Button>
+          <Button className="glass-button">เข้าสู่ระบบ</Button>
         </div>
 
         {/* Mobile menu button */}
@@ -84,7 +84,7 @@ export default function Navbar() {
                   href={item.href}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                     isActive
-                      ? "bg-white/40 dark:bg-white/20 text-blue-600 dark:text-blue-400"
+                      ? "bg-white/40 dark:bg-white/20 text-black dark:text-white"
                       : "hover:bg-white/20 dark:hover:bg-white/10"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
@@ -95,7 +95,7 @@ export default function Navbar() {
               )
             })}
             <div className="pt-2">
-              <Button className="w-full glass-button">Sign In</Button>
+              <Button className="w-full glass-button">เข้าสู่ระบบ</Button>
             </div>
           </div>
         </div>

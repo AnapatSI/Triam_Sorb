@@ -3,33 +3,33 @@ import { CheckCircle, FileText, MessageSquare, BarChart3, Shield, Zap } from "lu
 const features = [
   {
     icon: FileText,
-    title: "Multi-Format Support",
-    description: "Upload PDF, DOCX, and TXT files with automatic content extraction and processing.",
+    title: "รองรับหลายรูปแบบไฟล์",
+    description: "อัปโหลดไฟล์ PDF, DOCX และ TXT พร้อมการสกัดและประมวลผลเนื้อหาโดยอัตโนมัติ",
   },
   {
     icon: MessageSquare,
-    title: "Interactive Learning",
-    description: "Express your understanding in your own words and receive detailed AI feedback.",
+    title: "การเรียนรู้แบบโต้ตอบ",
+    description: "แสดงความเข้าใจของคุณด้วยคำพูดของคุณเองและรับข้อเสนอแนะจาก AI ที่ละเอียด",
   },
   {
     icon: BarChart3,
-    title: "Progress Tracking",
-    description: "Visualize your learning journey with comprehensive analytics and insights.",
+    title: "ติดตามความก้าวหน้า",
+    description: "เห็นภาพการเดินทางการเรียนรู้ของคุณด้วยการวิเคราะห์และข้อมูลเชิงลึกที่ครอบคลุม",
   },
   {
     icon: Shield,
-    title: "Secure & Private",
-    description: "Your data is encrypted and stored securely with enterprise-grade protection.",
+    title: "ปลอดภัยและเป็นส่วนตัว",
+    description: "ข้อมูลของคุณถูกเข้ารหัสและจัดเก็บอย่างปลอดภัยด้วยการป้องกันระดับองค์กร",
   },
   {
     icon: Zap,
-    title: "Instant Feedback",
-    description: "Get immediate AI-powered analysis and suggestions to improve your understanding.",
+    title: "ข้อเสนอแนะทันที",
+    description: "รับการวิเคราะห์และคำแนะนำที่ขับเคลื่อนด้วย AI ทันทีเพื่อปรับปรุงความเข้าใจของคุณ",
   },
   {
     icon: CheckCircle,
-    title: "Personalized Learning",
-    description: "Adaptive learning paths tailored to your unique learning style and pace.",
+    title: "การเรียนรู้ที่ปรับแต่งเฉพาะบุคคล",
+    description: "เส้นทางการเรียนรู้ที่ปรับตัวได้ตามสไตล์การเรียนรู้และจังหวะที่เป็นเอกลักษณ์ของคุณ",
   },
 ]
 
@@ -38,11 +38,11 @@ export default function Features() {
     <section className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Powerful Features
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 bg-clip-text text-transparent">
+            คุณสมบัติที่ทรงพลัง
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Everything you need to enhance your learning experience with cutting-edge AI technology.
+            ทุกสิ่งที่คุณต้องการเพื่อเพิ่มประสบการณ์การเรียนรู้ของคุณด้วยเทคโนโลยี AI ที่ล้ำสมัย
           </p>
         </div>
 
@@ -51,7 +51,7 @@ export default function Features() {
             const Icon = feature.icon
             return (
               <div key={index} className="glass-card p-8 hover:scale-105 transition-transform duration-300">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-black to-gray-800 rounded-xl flex items-center justify-center mb-4">
                   <Icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>

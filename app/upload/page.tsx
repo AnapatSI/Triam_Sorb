@@ -7,28 +7,29 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, FileText, CheckCircle, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { FileParser, type ParsedContent } from "@/lib/file-parser"
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
+  const [parsedContent, setParsedContent] = useState<ParsedContent | null>(null)
   const { toast } = useToast()
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
     if (selectedFile) {
       const allowedTypes = [
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "text/plain",
       ]
       if (allowedTypes.includes(selectedFile.type)) {
         setFile(selectedFile)
         setUploadSuccess(false)
+        setParsedContent(null)
       } else {
         toast({
-          title: "Invalid file type",
-          description: "Please upload a PDF, DOCX, or TXT file.",
+          title: "ประเภทไฟล์ไม่ถูกต้อง",
+          description: "กรุณาอัปโหลดไฟล์ TXT เท่านั้น",
           variant: "destructive",
         })
       }
@@ -40,19 +41,33 @@ export default function UploadPage() {
 
     setUploading(true)
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      // Parse the file using FileParser
+      const parsed = await FileParser.parseFile(file)
+      setParsedContent(parsed)
+
+      // Store parsed content in localStorage for the learn page
+      localStorage.setItem('currentLesson', JSON.stringify({
+        ...parsed,
+        uploadedAt: new Date().toISOString(),
+        fileName: file.name
+      }))
+
+      // Simulate additional processing time
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Mock successful upload
       setUploadSuccess(true)
       toast({
-        title: "File uploaded successfully!",
-        description: "Your lesson has been processed and is ready for learning.",
+        title: "อัปโหลดไฟล์สำเร็จ!",
+        description: `บทเรียน "${parsed.title}" ได้รับการประมวลผลแล้ว (${parsed.wordCount} คำ, ประมาณ ${parsed.estimatedReadTime} นาทีในการอ่าน)`,
       })
     } catch (error) {
+      console.error('Upload error:', error)
+      const errorMessage = error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปโหลดไฟล์ของคุณ กรุณาลองใหม่อีกครั้ง"
+      
       toast({
-        title: "Upload failed",
-        description: "There was an error uploading your file. Please try again.",
+        title: "การอัปโหลดล้มเหลว",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -61,9 +76,9 @@ export default function UploadPage() {
   }
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes"
+    if (bytes === 0) return "0 ไบต์"
     const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
+    const sizes = ["ไบต์", "KB", "MB", "GB"]
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
   }
@@ -72,11 +87,11 @@ export default function UploadPage() {
     <div className="min-h-screen pt-32 pb-20 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Upload Your Lesson
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 bg-clip-text text-transparent">
+            อัปโหลดบทเรียนของคุณ
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Upload your study materials and let our AI help you learn more effectively.
+            อัปโหลดเนื้อหาการศึกษาของคุณและให้ AI ของเราช่วยให้คุณเรียนรู้ได้อย่างมีประสิทธิภาพมากขึ้น
           </p>
         </div>
 
@@ -86,37 +101,52 @@ export default function UploadPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="w-5 h-5" />
-                Upload File
+                อัปโหลดไฟล์
               </CardTitle>
-              <CardDescription>Supported formats: PDF, DOCX, TXT (Max 10MB)</CardDescription>
+              <CardDescription>รูปแบบที่รองรับ: TXT เท่านั้น (สูงสุด 10MB)</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
+              <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-black dark:hover:border-white transition-colors">
                 <input
                   type="file"
                   id="file-upload"
                   className="hidden"
-                  accept=".pdf,.docx,.txt"
+                  accept=".txt"
                   onChange={handleFileChange}
                 />
                 <label htmlFor="file-upload" className="cursor-pointer">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-black to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Upload className="w-8 h-8 text-white" />
                   </div>
-                  <p className="text-lg font-medium mb-2">Click to upload or drag and drop</p>
-                  <p className="text-gray-500 dark:text-gray-400">PDF, DOCX, or TXT files</p>
+                  <p className="text-lg font-medium mb-2">คลิกเพื่ออัปโหลดหรือลากและวาง</p>
+                  <p className="text-gray-500 dark:text-gray-400">ไฟล์ TXT เท่านั้น</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    * กรุณาแปลงไฟล์ PDF หรือ DOCX เป็น TXT ก่อนอัปโหลด
+                  </p>
                 </label>
               </div>
 
               {file && (
                 <div className="glass rounded-xl p-4">
                   <div className="flex items-center gap-3">
-                    <FileText className="w-8 h-8 text-blue-500" />
+                    <FileText className="w-8 h-8 text-black dark:text-white" />
                     <div className="flex-1">
                       <p className="font-medium">{file.name}</p>
                       <p className="text-sm text-gray-500">{formatFileSize(file.size)}</p>
                     </div>
                     {uploadSuccess && <CheckCircle className="w-6 h-6 text-green-500" />}
+                  </div>
+                </div>
+              )}
+
+              {parsedContent && (
+                <div className="glass rounded-xl p-4 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+                  <h4 className="font-medium text-blue-700 dark:text-blue-400 mb-2">ข้อมูลไฟล์ที่ประมวลผลแล้ว</h4>
+                  <div className="space-y-1 text-sm text-blue-600 dark:text-blue-300">
+                    <p>• ชื่อ: {parsedContent.title}</p>
+                    <p>• จำนวนคำ: {parsedContent.wordCount.toLocaleString()} คำ</p>
+                    <p>• เวลาอ่านโดยประมาณ: {parsedContent.estimatedReadTime} นาที</p>
+                    <p>• จำนวนส่วน: {parsedContent.sections.length} ส่วน</p>
                   </div>
                 </div>
               )}
@@ -127,17 +157,17 @@ export default function UploadPage() {
                 className="w-full glass-button"
                 size="lg"
               >
-                {uploading ? "Uploading..." : uploadSuccess ? "Uploaded Successfully" : "Upload File"}
+                {uploading ? "กำลังประมวลผล..." : uploadSuccess ? "อัปโหลดสำเร็จแล้ว" : "อัปโหลดและประมวลผลไฟล์"}
               </Button>
 
               {uploadSuccess && (
                 <div className="glass rounded-xl p-4 bg-green-50/50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
                   <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">File processed successfully!</span>
+                    <span className="font-medium">ประมวลผลไฟล์สำเร็จ!</span>
                   </div>
                   <p className="text-sm text-green-600 dark:text-green-300 mt-1">
-                    Your lesson is ready. You can now proceed to share your understanding.
+                    บทเรียนของคุณพร้อมแล้ว คุณสามารถดำเนินการเพื่อแชร์ความเข้าใจของคุณได้
                   </p>
                 </div>
               )}
@@ -149,55 +179,55 @@ export default function UploadPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertCircle className="w-5 h-5" />
-                Upload Guidelines
+                แนวทางการอัปโหลด
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400">1</span>
+                  <div className="w-6 h-6 bg-black dark:bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-white dark:text-black">1</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">Choose Quality Content</h4>
+                    <h4 className="font-medium">เลือกเนื้อหาที่มีคุณภาพ</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Upload well-structured lessons with clear concepts for better AI analysis.
+                      อัปโหลดบทเรียนที่มีโครงสร้างที่ดีพร้อมแนวคิดที่ชัดเจนเพื่อการวิเคราะห์ AI ที่ดีขึ้น
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400">2</span>
+                  <div className="w-6 h-6 bg-black dark:bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-white dark:text-black">2</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">File Size Limit</h4>
+                    <h4 className="font-medium">ขีดจำกัดขนาดไฟล์</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Keep files under 10MB for optimal processing speed and performance.
+                      เก็บไฟล์ไว้ต่ำกว่า 10MB เพื่อความเร็วในการประมวลผลและประสิทธิภาพที่ดีที่สุด
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400">3</span>
+                  <div className="w-6 h-6 bg-black dark:bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-white dark:text-black">3</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">Supported Formats</h4>
+                    <h4 className="font-medium">รูปแบบที่รองรับ</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      PDF, DOCX, and TXT files are supported with automatic content extraction.
+                      ขณะนี้รองรับเฉพาะไฟล์ TXT เท่านั้น กรุณาแปลงไฟล์ PDF หรือ DOCX เป็น TXT ก่อนอัปโหลด
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400">4</span>
+                  <div className="w-6 h-6 bg-black dark:bg-white rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-bold text-white dark:text-black">4</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">Privacy & Security</h4>
+                    <h4 className="font-medium">ความเป็นส่วนตัวและความปลอดภัย</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      Your files are encrypted and processed securely. We never share your content.
+                      ไฟล์ของคุณถูกเข้ารหัสและประมวลผลอย่างปลอดภัย เราไม่เคยแชร์เนื้อหาของคุณ
                     </p>
                   </div>
                 </div>
