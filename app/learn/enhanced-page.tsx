@@ -23,6 +23,8 @@ import { useToast } from "@/hooks/use-toast"
 import { AIAnalyzer, type AIAnalysisResult, type KnowledgeValidationResult } from "@/lib/ai-analyzer"
 import { type ParsedContent } from "@/lib/file-parser"
 
+const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""; // หรือวิธีที่คุณเก็บ key
+
 // Fallback lesson data if no uploaded content
 const fallbackLesson = {
   title: "บทนำสู่การเรียนรู้ของเครื่อง",
@@ -68,6 +70,14 @@ export default function EnhancedLearnPage() {
       } catch (error) {
         console.error('Error parsing stored lesson:', error)
       }
+    }
+
+    if (GEMINI_API_KEY) {
+      AIAnalyzer.configureAI({
+        name: 'gemini',
+        apiKey: GEMINI_API_KEY,
+        model: 'gemini-pro'
+      });
     }
   }, [])
 

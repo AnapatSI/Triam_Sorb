@@ -37,6 +37,15 @@ export default function LearnPage() {
 
   useEffect(() => {
     setIsClient(true)
+    // ตั้งค่า Gemini API Key
+    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "";
+    if (apiKey) {
+      AIAnalyzer.configureAI({
+        name: 'gemini',
+        apiKey,
+        model: 'gemini-2.5-flash'
+      });
+    }
     if (typeof window !== "undefined") {
       // Load lesson from localStorage if available
       const storedLesson = localStorage.getItem('currentLesson')
@@ -223,6 +232,16 @@ export default function LearnPage() {
                     {analysisResult.feedback}
                   </p>
                 </div>
+
+                {/* Raw Gemini Response (Debug/Info) */}
+                {analysisResult.rawGeminiResponse && (
+                  <div className="glass rounded-xl p-6">
+                    <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-200">Raw Gemini Response</h3>
+                    <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs overflow-x-auto max-h-60 whitespace-pre-wrap">
+                      {analysisResult.rawGeminiResponse}
+                    </pre>
+                  </div>
+                )}
 
                 {/* Strengths */}
                 {analysisResult.strengths.length > 0 && (

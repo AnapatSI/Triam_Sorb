@@ -17,6 +17,7 @@ export interface AIAnalysisResult {
   keyConcepts: string[] // แนวคิดสำคัญ
   misconceptions: string[] // ความเข้าใจผิด (ภาษาไทย)
   confidenceLevel: 'high' | 'medium' | 'low' // ระดับความมั่นใจ
+  rawGeminiResponse?: string // ข้อมูลดิบที่ Gemini ส่งกลับ (debug)
 }
 
 // โครงสร้างเนื้อหาบทเรียน
@@ -32,7 +33,7 @@ export interface LessonContent {
 
 // การตั้งค่าผู้ให้บริการ AI
 export interface AIProvider {
-  name: 'anthropic' | 'local' | 'mock' | 'gemini' // ชื่อผู้ให้บริการ
+  name: 'gemini' // ชื่อผู้ให้บริการ
   apiKey?: string // คีย์ API
   model?: string // ชื่อโมเดล
   temperature?: number // ค่า temperature
@@ -55,169 +56,44 @@ export interface KnowledgeValidationResult {
 // คลาสหลักสำหรับวิเคราะห์และตรวจสอบความเข้าใจของผู้เรียนด้วย AI
 export class AIAnalyzer {
   private static aiProvider: AIProvider = {
-    name: 'mock', // ค่าเริ่มต้นเป็น mock สำหรับการพัฒนา
-    model: 'mock-model'
+    name: 'gemini', // ใช้ Gemini เป็นค่าเริ่มต้นเท่านั้น
+    model: 'gemini-2.5-flash'
   }
 
-  // กำหนดค่าผู้ให้บริการ AI
+  // กำหนดค่าผู้ให้บริการ AI (รองรับเฉพาะ Gemini)
   static configureAI(provider: AIProvider) {
-    this.aiProvider = provider
+    if (provider.name !== 'gemini') {
+      throw new Error('ขณะนี้ระบบรองรับเฉพาะ Gemini AI เท่านั้น')
+    }
+    this.aiProvider = {
+      ...provider,
+      model: provider.model || 'gemini-2.5-flash'
+    }
   }
 
-  // วิเคราะห์ความเข้าใจของผู้เรียน (เลือก provider ตามที่ตั้งค่า)
+  // วิเคราะห์ความเข้าใจของผู้เรียน (ใช้ Gemini เท่านั้น)
   static async analyzeUnderstanding(
     lessonContent: LessonContent,
     userUnderstanding: string
   ): Promise<AIAnalysisResult> {
-    try {
-      switch (this.aiProvider.name) {
-        case 'gemini':
-          return await this.analyzeWithGemini(lessonContent, userUnderstanding)
-        case 'anthropic':
-          return await this.analyzeWithAnthropic(lessonContent, userUnderstanding)
-        case 'local':
-          return await this.analyzeWithLocalAPI(lessonContent, userUnderstanding)
-        case 'mock':
-        default:
-          return await this.simulateAIAnalysis(lessonContent, userUnderstanding)
-      }
-    } catch (error) {
-      console.error('AI Analysis failed:', error)
-      // หากเกิดข้อผิดพลาดจะ fallback ไปที่ mock
-      return await this.simulateAIAnalysis(lessonContent, userUnderstanding)
+    if (!this.aiProvider.apiKey) {
+      throw new Error('Gemini API key not configured')
     }
+    return await this.analyzeWithGemini(lessonContent, userUnderstanding)
   }
 
-  // ตรวจสอบความรู้ของผู้เรียน (Knowledge Validation)
+  // ตรวจสอบความรู้ของผู้เรียน (ใช้ Gemini เท่านั้น)
   static async validateKnowledge(
     lessonContent: LessonContent,
     userUnderstanding: string,
     specificQuestions?: string[]
   ): Promise<KnowledgeValidationResult> {
-    try {
-      if (this.aiProvider.name === 'mock') {
-        return this.simulateKnowledgeValidation(lessonContent, userUnderstanding, specificQuestions)
-      }
-
-      const prompt = this.buildValidationPrompt(lessonContent, userUnderstanding, specificQuestions)
-      const aiResponse = await this.getAIResponse(prompt)
-      return this.parseValidationResponse(aiResponse)
-    } catch (error) {
-      console.error('Knowledge validation failed:', error)
-      return this.simulateKnowledgeValidation(lessonContent, userUnderstanding, specificQuestions)
-    }
-  }
-
-  // วิเคราะห์ด้วย OpenAI (ยังไม่ถูกเรียกใช้โดยตรง)
-  private static async analyzeWithOpenAI(
-    lessonContent: LessonContent,
-    userUnderstanding: string
-  ): Promise<AIAnalysisResult> {
     if (!this.aiProvider.apiKey) {
-      throw new Error('OpenAI API key not configured')
+      throw new Error('Gemini API key not configured')
     }
-
-    const prompt = this.buildAnalysisPrompt(lessonContent, userUnderstanding)
-    
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.aiProvider.apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: this.aiProvider.model || 'gpt-4',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert educational AI that analyzes student understanding and provides detailed feedback. Respond in JSON format.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 2000
-      })
-    })
-
-    if (!response.ok) {
-      throw new Error('OpenAI API request failed')
-    }
-
-    const data = await response.json()
-    const aiResponse = data.choices[0].message.content
-    
-    return this.parseAIResponse(aiResponse, lessonContent, userUnderstanding)
-  }
-
-  // วิเคราะห์ด้วย Anthropic (Claude)
-  private static async analyzeWithAnthropic(
-    lessonContent: LessonContent,
-    userUnderstanding: string
-  ): Promise<AIAnalysisResult> {
-    if (!this.aiProvider.apiKey) {
-      throw new Error('Anthropic API key not configured')
-    }
-
-    const prompt = this.buildAnalysisPrompt(lessonContent, userUnderstanding)
-    
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.aiProvider.apiKey}`,
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: this.aiProvider.model || 'claude-3-sonnet-20240229',
-        max_tokens: 2000,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      })
-    })
-
-    if (!response.ok) {
-      throw new Error('Anthropic API request failed')
-    }
-
-    const data = await response.json()
-    const aiResponse = data.content[0].text
-    
-    return this.parseAIResponse(aiResponse, lessonContent, userUnderstanding)
-  }
-
-  // วิเคราะห์ด้วย Local API (API ภายในระบบ)
-  private static async analyzeWithLocalAPI(
-    lessonContent: LessonContent,
-    userUnderstanding: string
-  ): Promise<AIAnalysisResult> {
-    // Use the existing API structure
-    const { api } = await import('./api')
-    
-    const response = await api.analyzeUnderstanding({
-      lesson_content: lessonContent.content,
-      user_understanding: userUnderstanding
-    })
-
-    return {
-      comprehensionScore: response.comprehension_score,
-      isCorrect: response.comprehension_score >= 70,
-      factualAccuracy: response.comprehension_score, // Map to factual accuracy
-      feedback: response.detailed_feedback,
-      strengths: response.strengths,
-      areasForImprovement: response.improvements,
-      suggestions: response.suggestions,
-      detailedExplanation: response.detailed_feedback,
-      keyConcepts: this.extractKeyConcepts(lessonContent.content),
-      misconceptions: [],
-      confidenceLevel: 'medium'
-    }
+    const prompt = this.buildValidationPrompt(lessonContent, userUnderstanding, specificQuestions)
+    const aiResponse = await this.getAIResponse(prompt)
+    return this.parseValidationResponse(aiResponse)
   }
 
   // วิเคราะห์ด้วย Gemini (Google Generative AI)
@@ -225,11 +101,8 @@ export class AIAnalyzer {
     lessonContent: LessonContent,
     userUnderstanding: string
   ): Promise<AIAnalysisResult> {
-    if (!this.aiProvider.apiKey) {
-      throw new Error('Gemini API key not configured')
-    }
-    const genAI = new GoogleGenerativeAI(this.aiProvider.apiKey)
-    const modelName = this.aiProvider.model || 'gemini-pro'
+    const genAI = new GoogleGenerativeAI(this.aiProvider.apiKey!)
+    const modelName = this.aiProvider.model || 'gemini-2.5-flash'
     const model = genAI.getGenerativeModel({ model: modelName })
     const prompt = this.buildAnalysisPrompt(lessonContent, userUnderstanding)
     const response = await model.generateContent({
@@ -246,7 +119,11 @@ export class AIAnalyzer {
     })
     // Gemini SDK returns result as { response: { candidates: [ { content: { parts: [ { text }] } } ] } }
     const aiResponse = response.response?.candidates?.[0]?.content?.parts?.[0]?.text || ''
-    return this.parseAIResponse(aiResponse, lessonContent, userUnderstanding)
+    const parsed = this.parseAIResponse(aiResponse, lessonContent, userUnderstanding)
+    return {
+      ...parsed,
+      rawGeminiResponse: aiResponse
+    }
   }
 
   // สร้าง prompt สำหรับวิเคราะห์ความเข้าใจ
@@ -259,7 +136,7 @@ LESSON SUMMARY: ${lessonContent.summary}
 
 STUDENT'S UNDERSTANDING: ${userUnderstanding}
 
-Please provide a comprehensive analysis in the following JSON format (respond ONLY with valid JSON):
+Please provide a comprehensive analysis in the following JSON format (respond ONLY with valid JSON, do not include any explanation, markdown, or text outside the JSON):
 {
   "comprehensionScore": number (0-100),
   "factualAccuracy": number (0-100),
@@ -274,17 +151,7 @@ Please provide a comprehensive analysis in the following JSON format (respond ON
   "confidenceLevel": "high|medium|low"
 }
 
-Analysis guidelines:
-1. Comprehension Score: How well the student understands the main concepts (0-100)
-2. Factual Accuracy: How accurate the student's statements are (0-100)
-3. Strengths: What the student understood correctly
-4. Areas for Improvement: What concepts need more clarification
-5. Suggestions: Specific actionable advice for improvement
-6. Key Concepts: Important terms and ideas from the lesson
-7. Misconceptions: Any incorrect understanding that needs correction
-8. Feedback: Overall assessment in Thai language
-
-Focus on being constructive and educational. If the student's understanding is limited, provide encouraging feedback with specific guidance.`
+Return only JSON. Do not add any other text.`
   }
 
   // สร้าง prompt สำหรับตรวจสอบความรู้
@@ -310,7 +177,7 @@ STUDENT'S UNDERSTANDING: ${userUnderstanding}
 Please validate the student's knowledge by answering these questions:
 ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-Respond in JSON format (respond ONLY with valid JSON):
+Respond in JSON format ONLY (respond ONLY with valid JSON, do not include any explanation, markdown, or text outside the JSON):
 {
   "overallAccuracy": number (0-100),
   "questionResults": [
@@ -323,64 +190,34 @@ Respond in JSON format (respond ONLY with valid JSON):
     }
   ],
   "confidence": number (0-100)
-}`
+}
+
+Return only JSON. Do not add any other text.`
   }
 
   // เรียกใช้งาน AI provider เพื่อขอผลลัพธ์ (ใช้กับ validateKnowledge)
   private static async getAIResponse(prompt: string): Promise<string> {
     const provider = this.aiProvider
-    
-    switch (provider.name) {
-      case 'gemini':
-        const geminiResponse = await fetch('https://api.gemini.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${provider.apiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: provider.model || 'gemini-pro',
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: provider.maxTokens || 2000,
-            temperature: provider.temperature || 0.3
-          })
-        })
-        
-        if (!geminiResponse.ok) {
-          const errorData = await geminiResponse.json()
-          throw new Error(`Gemini API error: ${errorData.error?.message || geminiResponse.statusText}`)
-        }
-        
-        const geminiData = await geminiResponse.json()
-        return geminiData.content[0].text
-
-      case 'anthropic':
-        const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${provider.apiKey}`,
-            'Content-Type': 'application/json',
-            'anthropic-version': '2023-06-01'
-          },
-          body: JSON.stringify({
-            model: provider.model || 'claude-3-sonnet-20240229',
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: provider.maxTokens || 2000,
-            temperature: provider.temperature || 0.3
-          })
-        })
-        
-        if (!anthropicResponse.ok) {
-          const errorData = await anthropicResponse.json()
-          throw new Error(`Anthropic API error: ${errorData.error?.message || anthropicResponse.statusText}`)
-        }
-        
-        const anthropicData = await anthropicResponse.json()
-        return anthropicData.content[0].text
-
-      default:
-        throw new Error('AI provider not supported for validation')
+    if (!provider.apiKey) {
+      throw new Error('Gemini API key not configured')
     }
+    const genAI = new GoogleGenerativeAI(provider.apiKey)
+    const modelName = provider.model || 'gemini-2.5-flash'
+    const model = genAI.getGenerativeModel({ model: modelName })
+    const response = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: provider.temperature || 0.3,
+        maxOutputTokens: provider.maxTokens || 2000,
+      }
+    })
+    // Gemini SDK returns result as { response: { candidates: [ { content: { parts: [ { text }] } } ] } }
+    return response.response?.candidates?.[0]?.content?.parts?.[0]?.text || ''
   }
 
   // แปลงผลลัพธ์จาก AI เป็น AIAnalysisResult
