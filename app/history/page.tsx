@@ -1,61 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, Search, TrendingUp, FileText, Brain, Clock, Filter } from "lucide-react"
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
+import { supabaseApi } from "@/lib/supabase"
 
-// Mock learning history data
-const mockHistory = [
-  {
-    id: 1,
-    title: "บทนำสู่การเรียนรู้ของเครื่อง",
-    date: "2024-01-15",
-    score: 85,
-    status: "completed",
-    timeSpent: "12 นาที",
-    category: "AI/ML",
-  },
-  {
-    id: 2,
-    title: "React Hooks แบบเจาะลึก",
-    date: "2024-01-14",
-    score: 92,
-    status: "completed",
-    timeSpent: "18 นาที",
-    category: "การพัฒนาเว็บ",
-  },
-  {
-    id: 3,
-    title: "การทำให้ฐานข้อมูลเป็นมาตรฐาน",
-    date: "2024-01-13",
-    score: 78,
-    status: "completed",
-    timeSpent: "15 นาที",
-    category: "ฐานข้อมูล",
-  },
-  {
-    id: 4,
-    title: "โครงสร้างข้อมูล Python",
-    date: "2024-01-12",
-    score: 88,
-    status: "completed",
-    timeSpent: "20 นาที",
-    category: "การเขียนโปรแกรม",
-  },
-  {
-    id: 5,
-    title: "พื้นฐานความปลอดภัยเครือข่าย",
-    date: "2024-01-11",
-    score: 76,
-    status: "completed",
-    timeSpent: "25 นาที",
-    category: "ความปลอดภัย",
-  },
-]
+const PAGE_SIZE = 5
 
 const getScoreColor = (score: number) => {
   if (score >= 90) return "text-green-600 dark:text-green-400"
@@ -74,16 +29,73 @@ export default function HistoryPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterCategory, setFilterCategory] = useState("all")
   const [sortBy, setSortBy] = useState("date")
+  const [history, setHistory] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  const filteredHistory = mockHistory.filter((item) => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    let isMounted = true
+    async function fetchHistory() {
+      setLoading(true)
+      setError(null)
+      try {
+        const user = await supabaseApi.getCurrentUser()
+        if (!user) {
+          setError("ไม่พบผู้ใช้ กรุณาเข้าสู่ระบบใหม่อีกครั้ง")
+          setLoading(false)
+          return
+        }
+        // Get paginated data
+        const { data, error, count } = await supabaseApi.getLearningHistory(user.id, page, PAGE_SIZE)
+
+        if (error) {
+          throw error
+        }
+
+        if (isMounted) {
+          setHistory(data ?? [])
+          setTotal(count ?? 0)
+        }
+      } catch (err: any) {
+        setError(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล")
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+    fetchHistory()
+    return () => {
+      isMounted = false
+    }
+  }, [page])
+
+  // Filtering
+  const filteredHistory = history.filter((item) => {
+    const matchesSearch = item.lesson_title.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = filterCategory === "all" || item.category === filterCategory
     return matchesSearch && matchesCategory
   })
 
-  const averageScore = Math.round(mockHistory.reduce((sum, item) => sum + item.score, 0) / mockHistory.length)
-  const totalTimeSpent = mockHistory.reduce((sum, item) => sum + Number.parseInt(item.timeSpent), 0)
-  const totalLessons = mockHistory.length
+  // Sorting
+  const sortedHistory = [...filteredHistory].sort((a, b) => {
+    if (sortBy === "score") return (b.comprehension_score || 0) - (a.comprehension_score || 0)
+    if (sortBy === "title") return a.lesson_title.localeCompare(b.lesson_title)
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  })
+
+  // Stats
+  const averageScore =
+    sortedHistory.length > 0
+      ? Math.round(sortedHistory.reduce((sum, item) => sum + (item.comprehension_score || 0), 0) / sortedHistory.length)
+      : 0
+  const totalTimeSpent = sortedHistory.reduce((sum, item) => sum + (parseInt(item.time_spent || "0") || 0), 0)
+  const totalLessons = total
+
+  // Pagination controls
+  const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-4">
@@ -190,51 +202,104 @@ export default function HistoryPage() {
           </CardContent>
         </Card>
 
+        {/* Loading/Error State */}
+        {loading && (
+          <div className="text-center py-12 text-gray-500">กำลังโหลด...</div>
+        )}
+        {error && (
+          <div className="text-center py-12 text-red-500">{error}</div>
+        )}
+
         {/* Learning History List */}
-        <div className="space-y-4">
-          {filteredHistory.map((item) => (
-            <Card key={item.id} className="glass-card hover:scale-[1.02] transition-transform duration-300">
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-black to-gray-800 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Brain className="w-5 h-5 text-white" />
-                      </div>
+        {!loading && !error && (
+          <>
+            <div className="space-y-4">
+              {sortedHistory.map((item) => (
+                <Card key={item.id} className="glass-card hover:scale-[1.02] transition-transform duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold mb-1">{item.title}</h3>
-                        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
-                            <span>{item.date}</span>
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-br from-black to-gray-800 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Brain className="w-5 h-5 text-white" />
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>{item.timeSpent}</span>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold mb-1">{item.lesson_title}</h3>
+                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-4 h-4" />
+                                <span>{item.created_at?.slice(0, 10)}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-4 h-4" />
+                                <span>{item.time_spent || "-"}</span>
+                              </div>
+                              <Badge variant="outline" className="glass">
+                                {item.category || "-"}
+                              </Badge>
+                            </div>
                           </div>
-                          <Badge variant="outline" className="glass">
-                            {item.category}
-                          </Badge>
                         </div>
                       </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className={`text-2xl font-bold ${getScoreColor(item.comprehension_score || 0)}`}>{item.comprehension_score || 0}%</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">คะแนนความเข้าใจ</p>
+                        </div>
+                        <Button variant="outline" className="glass-button">
+                          ดูรายละเอียด
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className={`text-2xl font-bold ${getScoreColor(item.score)}`}>{item.score}%</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">คะแนนความเข้าใจ</p>
-                    </div>
-                    <Button variant="outline" className="glass-button">
-                      ดูรายละเอียด
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <Pagination className="mt-8">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={e => {
+                        e.preventDefault();
+                        setPage(p => Math.max(1, p - 1))
+                      }}
+                      aria-disabled={page === 1}
+                    />
+                  </PaginationItem>
+                  {[...Array(totalPages)].map((_, i) => (
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        href="#"
+                        isActive={page === i + 1}
+                        onClick={e => {
+                          e.preventDefault();
+                          setPage(i + 1)
+                        }}
+                      >
+                        {i + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={e => {
+                        e.preventDefault();
+                        setPage(p => Math.min(totalPages, p + 1))
+                      }}
+                      aria-disabled={page === totalPages}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            )}
+          </>
+        )}
 
-        {filteredHistory.length === 0 && (
+        {!loading && !error && sortedHistory.length === 0 && (
           <Card className="glass-card">
             <CardContent className="p-12 text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center mx-auto mb-4">

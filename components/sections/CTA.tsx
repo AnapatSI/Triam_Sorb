@@ -1,8 +1,13 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Sparkles } from "lucide-react"
+import { User } from "@supabase/supabase-js"
 
-export default function CTA() {
+interface CTAProps {
+  user: User | null
+}
+
+export default function CTA({ user }: CTAProps) {
   return (
     <section className="py-20 px-4">
       <div className="max-w-4xl mx-auto">
@@ -17,12 +22,21 @@ export default function CTA() {
             เข้าร่วมกับผู้เรียนหลายพันคนที่กำลังใช้ AI เพื่อเร่งการศึกษาของพวกเขาและบรรลุผลลัพธ์ที่ดีกว่า
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/upload">
-              <Button size="lg" className="glass-button text-lg px-8 py-4">
-                เริ่มเรียนรู้ตอนนี้
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+            {user ? (
+              <Link href="/learn">
+                <Button size="lg" className="glass-button text-lg px-8 py-4">
+                  เริ่มเรียนรู้ตอนนี้
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/signup">
+                <Button size="lg" className="glass-button text-lg px-8 py-4">
+                  สมัครสมาชิกฟรี
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            )}
             <Button variant="outline" size="lg" className="glass-button text-lg px-8 py-4">
               เรียนรู้เพิ่มเติม
             </Button>

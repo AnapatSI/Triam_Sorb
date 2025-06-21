@@ -8,6 +8,8 @@ import { Brain, Send, FileText, Clock, Target, AlertCircle, Settings } from "luc
 import { useToast } from "@/hooks/use-toast"
 import { AIAnalyzer, type AIAnalysisResult } from "@/lib/ai-analyzer"
 import { type ParsedContent } from "@/lib/file-parser"
+import { useAuth } from "@/components/AuthProvider"
+import { supabaseApi } from "@/lib/supabase"
 
 // Fallback lesson data if no uploaded content
 const fallbackLesson = {
@@ -33,6 +35,7 @@ export default function LearnPage() {
   const [analysisResult, setAnalysisResult] = useState<AIAnalysisResult | null>(null)
   const [currentLesson, setCurrentLesson] = useState<ParsedContent>(fallbackLesson)
   const { toast } = useToast()
+  const { user } = useAuth()
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -76,6 +79,19 @@ export default function LearnPage() {
       const result = await AIAnalyzer.analyzeUnderstanding(currentLesson, understanding)
       setAnalysisResult(result)
       setShowFeedback(true)
+      
+      if (user && result) {
+        await supabaseApi.createLearningSession({
+          user_id: user.id,
+          lesson_title: currentLesson.title,
+          lesson_content: currentLesson.content,
+          user_understanding: understanding,
+          ai_feedback: result.feedback,
+          comprehension_score: result.comprehensionScore,
+          category: "Uncategorized", // Or derive from somewhere
+          time_spent: `${currentLesson.estimatedReadTime} นาที`,
+        })
+      }
       
       // Remove OpenAI provider/model display
       toast({
