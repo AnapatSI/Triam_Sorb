@@ -6,7 +6,9 @@ const en = {
     upload: "Upload",
     save: "Save",
     cancel: "Cancel",
-
+    home: "Home",
+    learn: "Learn",
+    history: "History"
   },
   upload: {
     title: "Upload your lesson",

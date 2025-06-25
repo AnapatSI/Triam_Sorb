@@ -5,7 +5,10 @@ const th = {
     upload: "อัปโหลด",
     save: "บันทึก",
     cancel: "ยกเลิก",
-    // ...add more common keys
+    home: "หน้าแรก",
+    learn: "เรียนรู้",
+    history: "ประวัติ"
+
   },
   upload: {
     title: "อัปโหลดบทเรียนของคุณ",

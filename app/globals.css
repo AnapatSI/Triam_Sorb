@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'THSarabun';
+  src: url('/Font/THSarabun.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'THSarabun';
+  src: url('/Font/THSarabun Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'THSarabun';
+  src: url('/Font/THSarabun Italic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'THSarabun';
+  src: url('/Font/THSarabun BoldItalic.ttf') format('truetype');
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -46,6 +75,22 @@
     --border: 0 0% 25%;
     --input: 0 0% 25%;
     --ring: 0 0% 95%;
+  }
+
+  html {
+    font-size: 22px;
+  }
+  html, body, * {
+    font-family: 'THSarabun', sans-serif !important;
+  }
+
+
+  *:not(code):not(pre) {
+    font-variant-numeric: normal;
+  }
+  .numeral, .force-arabic-numeral, .arabic-numeral, .use-arabic-numeral, .not-thai-numeral {
+    font-family: 'Inter', Arial, Helvetica, sans-serif !important;
+    font-variant-numeric: normal;
   }
 }
 

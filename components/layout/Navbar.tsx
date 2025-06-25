@@ -8,12 +8,13 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Menu, X, BookOpen, Upload, History, MessageSquare, User, Home } from "lucide-react"
 import { useAuth } from "@/components/AuthProvider"
 import { useLanguage } from "@/components/LanguageProvider"
+import { useTranslation } from "@/hooks/useTranslation"
 
 const navigation = [
-  { name: "หน้าแรก", href: "/", icon: Home },
-  { name: "เรียนรู้", href: "/learn", icon: BookOpen },
-  { name: "อัปโหลด", href: "/upload", icon: Upload },
-  { name: "ประวัติ", href: "/history", icon: History },
+  { key: "home", href: "/", icon: Home },
+  { key: "learn", href: "/learn", icon: BookOpen },
+  { key: "upload", href: "/upload", icon: Upload },
+  { key: "history", href: "/history", icon: History },
 ]
 
 export default function Navbar() {
@@ -21,6 +22,7 @@ export default function Navbar() {
   const { language, setLanguage } = useLanguage()
   const pathname = usePathname()
   const { user, signOut, loading } = useAuth()
+  const t = useTranslation()
 
   const handleSignOut = async () => {
     await signOut()
@@ -45,9 +47,26 @@ export default function Navbar() {
           {navigation.map((item) => {
             const Icon = item.icon
             const isActive = pathname === item.href
+            let label = ""
+            switch (item.key) {
+              case "home":
+                label = t.common?.home || "หน้าแรก"
+                break
+              case "learn":
+                label = t.common?.learn || "เรียนรู้"
+                break
+              case "upload":
+                label = t.common?.upload || "อัปโหลด"
+                break
+              case "history":
+                label = t.common?.history || "ประวัติ"
+                break
+              default:
+                label = item.key
+            }
             return (
               <Link
-                key={item.name}
+                key={item.key}
                 href={item.href}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
                   isActive
@@ -56,29 +75,31 @@ export default function Navbar() {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span className="font-medium">{item.name}</span>
+                <span className="font-medium">{label}</span>
               </Link>
             )
           })}
         </div>
 
-        {/* Desktop Language Buttons */}
-        <div className="hidden md:flex items-center space-x-2 ml-4">
-          <button
-            className={`px-4 py-2 rounded ${language === 'en' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleLanguageChange('en')}
-          >
-            EN
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${language === 'th' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-            onClick={() => handleLanguageChange('th')}
-          >
-            TH
-          </button>
-        </div>
+
 
         <div className="hidden md:flex items-center space-x-4">
+          <button
+            className="px-4 py-2 rounded text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white transition-colors flex items-center gap-2"
+            onClick={() => handleLanguageChange(language === 'en' ? 'th' : 'en')}
+          >
+            {language === 'en' ? (
+              <img src="/united-kingdom.png" alt="English" className="w-5 h-5 rounded-5" />
+            ) : (
+              <img src="/thailand.png" alt="ไทย" className="w-5 h-5 rounded-5" />
+            )}
+            <span>→</span>
+            {language === 'en' ? (
+              <img src="/thailand.png" alt="ไทย" className="w-5 h-5 rounded-5 opacity-70" />
+            ) : (
+              <img src="/united-kingdom.png" alt="English" className="w-5 h-5 rounded-5 opacity-70" />
+            )}
+          </button>
           <ThemeToggle />
           {user ? (
             <>
@@ -119,15 +140,17 @@ export default function Navbar() {
           {/* Mobile Language Buttons */}
           <div className="flex flex-col gap-2 mb-4">
             <button
-              className={`w-full px-4 py-2 rounded ${language === 'en' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              className={`w-full px-4 py-2 rounded flex items-center gap-2 ${language === 'en' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
               onClick={() => handleLanguageChange('en')}
             >
+              <img src="/united-kingdom.png" alt="English" className="w-5 h-5 rounded-full" />
               EN
             </button>
             <button
-              className={`w-full px-4 py-2 rounded ${language === 'th' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              className={`w-full px-4 py-2 rounded flex items-center gap-2 ${language === 'th' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
               onClick={() => handleLanguageChange('th')}
             >
+              <img src="/thailand.png" alt="ไทย" className="w-5 h-5 rounded-full" />
               TH
             </button>
           </div>
@@ -135,9 +158,26 @@ export default function Navbar() {
             {navigation.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
+              let label = ""
+              switch (item.key) {
+                case "home":
+                  label = t.common?.home || "หน้าแรก"
+                  break
+                case "learn":
+                  label = t.common?.learn || "เรียนรู้"
+                  break
+                case "upload":
+                  label = t.common?.upload || "อัปโหลด"
+                  break
+                case "history":
+                  label = t.common?.history || "ประวัติ"
+                  break
+                default:
+                  label = item.key
+              }
               return (
                 <Link
-                  key={item.name}
+                  key={item.key}
                   href={item.href}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                     isActive
@@ -147,7 +187,7 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.name}</span>
+                  <span className="font-medium">{label}</span>
                 </Link>
               )
             })}
