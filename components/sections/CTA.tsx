@@ -19,7 +19,7 @@ export default function CTA({ user, language }: CTAProps) {
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             พร้อมที่จะเปลี่ยนแปลงการเรียนรู้ของคุณหรือยัง?
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+          <p className="text-2xl md:text-3xl font-bold text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
             เข้าร่วมกับผู้เรียนหลายพันคนที่กำลังใช้ AI เพื่อเร่งการศึกษาของพวกเขาและบรรลุผลลัพธ์ที่ดีกว่า
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
