@@ -285,8 +285,8 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen pt-32 pb-20 px-4">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12 mt-12">
-          <h1 className="text-4xl md:text-5xl font-bold pb-3 mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
+        <div className="text-center mb-12 ">
+          <h1 className="text-4xl md:text-5xl font-bold pb-3 mb-2 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             {t.history.title}
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-1xl mx-auto">

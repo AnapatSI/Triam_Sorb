@@ -31,7 +31,7 @@ export default function Navbar() {
   const handleLanguageChange = (lang: 'en' | 'th') => setLanguage(lang)
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 px-6 py-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 pt-2 pb-2 px-6 py-4">
       <div className="flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-gradient-to-br from-black to-gray-800 rounded-lg flex items-center justify-center">

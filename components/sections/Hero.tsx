@@ -15,6 +15,7 @@ export default function Hero({ user, language }: HeroProps) {
   return (
     <section className="pt-32 pb-20 px-4 mt-2 mb-12">
       <div className="max-w-6xl mx-auto text-center">
+
         <div className="glass-card pt-12 pb-12 mb-12 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-gray-200/20 dark:border-gray-700/20">
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-600 dark:to-slate-800 rounded-2xl flex items-center justify-center shadow-lg">
@@ -29,6 +30,7 @@ export default function Hero({ user, language }: HeroProps) {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {user ? (
+
               <Link href="/study">
                 <Button size="lg" className="text-lg px-8 py-4 bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white shadow-lg transition-all duration-200">
                   {t.hero.startStudying}
