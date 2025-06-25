@@ -10,6 +10,7 @@ import { Upload, FileText, CheckCircle, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { FileParser, type ParsedContent } from "@/lib/file-parser"
 import { useLanguage } from '@/components/LanguageProvider'
+import { useRouter } from "next/navigation"
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -19,6 +20,7 @@ export default function UploadPage() {
   const { toast } = useToast()
   const { language } = useLanguage()
   const t = useTranslation()
+  const router = useRouter();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
@@ -65,6 +67,9 @@ export default function UploadPage() {
         title: "อัปโหลดไฟล์สำเร็จ!",
         description: `บทเรียน "${parsed.title}" ได้รับการประมวลผลแล้ว (${parsed.wordCount} คำ, ประมาณ ${parsed.estimatedReadTime} นาทีในการอ่าน)`,
       })
+      // Redirect to learn page for user to fill their understanding
+      router.push("/learn")
+      return;
     } catch (error) {
       console.error('Upload error:', error)
       const errorMessage = error instanceof Error ? error.message : "เกิดข้อผิดพลาดในการอัปโหลดไฟล์ของคุณ กรุณาลองใหม่อีกครั้ง"

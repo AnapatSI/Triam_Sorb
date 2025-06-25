@@ -6,13 +6,81 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Search, TrendingUp, FileText, Brain, Clock, Filter, X } from "lucide-react"
+import { Calendar, Search, TrendingUp, FileText, Brain, Clock, Filter, X, Trash, AlertTriangle } from "lucide-react"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { supabaseApi } from "@/lib/supabase"
 import { useAuth } from "@/components/AuthProvider"
 import { useRouter } from "next/navigation"
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/components/LanguageProvider';
+
+// Beautiful Delete Confirmation Modal Component
+interface DeleteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  lessonTitle: string;
+  t: any;
+}
+
+function DeleteModal({ isOpen, onClose, onConfirm, lessonTitle, t }: DeleteModalProps) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      
+      {/* Modal */}
+      <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 mx-4 max-w-md w-full animate-in fade-in-0 zoom-in-95 duration-200">
+        {/* Icon */}
+        <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
+        </div>
+        
+        {/* Content */}
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
+            {t.history.confirmDelete || "ยืนยันการลบ"}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-2">
+            {t.history.deleteConfirmMessage}
+          </p>
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mt-3">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              "{lessonTitle}"
+            </p>
+          </div>
+          <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+            {t.history.deleteWarning}
+          </p>
+        </div>
+        
+        {/* Actions */}
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="flex-1 border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
+          >
+            {t.history.cancel || "ยกเลิก"}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={onConfirm}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+          >
+            <Trash className="w-4 h-4 mr-2" />
+            {t.history.delete || "ลบ"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const PAGE_SIZE = 5
 
@@ -29,6 +97,12 @@ const getScoreBadgeVariant = (score: number) => {
   return "outline"
 }
 
+function formatMinutes(minutes: number) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
 export default function HistoryPage() {
   const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState("")
@@ -43,6 +117,19 @@ export default function HistoryPage() {
   const router = useRouter()
   const t = useTranslation();
   const { language } = useLanguage();
+  const [subjectFilter, setSubjectFilter] = useState<string>('all');
+  const [subjects, setSubjects] = useState<string[]>([]);
+  
+  // Delete modal state
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    itemId: string | null;
+    lessonTitle: string;
+  }>({
+    isOpen: false,
+    itemId: null,
+    lessonTitle: ''
+  });
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -130,15 +217,70 @@ export default function HistoryPage() {
   // Pagination controls
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
-  // Clear filters
-  const clearFilters = () => {
-    setSearchTerm("")
-    setFilterCategory("all")
-    setSortBy("date")
-    setPage(1)
-  }
+  // Clear only subject filter
+  const clearSubjectFilter = () => {
+    setSubjectFilter('all');
+  };
+
+  // Clear only main filters (search, category, sort)
+  const clearMainFilters = () => {
+    setSearchTerm("");
+    setFilterCategory("all");
+    setSortBy("date");
+    setPage(1);
+  };
+
+  // Clear only category filter
+  const clearCategoryFilter = () => {
+    setFilterCategory('all');
+    setPage(1);
+  };
 
   const hasActiveFilters = searchTerm || filterCategory !== "all" || sortBy !== "date"
+
+  // Fetch unique subjects from history after fetching history
+  useEffect(() => {
+    if (history.length > 0) {
+      const uniqueSubjects = Array.from(new Set(history.map(item => item.subject).filter(Boolean)));
+      setSubjects(uniqueSubjects);
+    }
+  }, [history]);
+
+  // Enhanced delete handler with beautiful modal
+  const handleDeleteClick = (id: string, lessonTitle: string) => {
+    setDeleteModal({
+      isOpen: true,
+      itemId: id,
+      lessonTitle: lessonTitle
+    });
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.itemId) return;
+    
+    try {
+      // Optimistic UI update
+      setHistory(prev => prev.filter(item => item.id !== deleteModal.itemId));
+      
+      // Close modal
+      setDeleteModal({ isOpen: false, itemId: null, lessonTitle: '' });
+      
+      // Delete from database
+      await supabaseApi.deleteLearningHistory(deleteModal.itemId);
+      
+      // Update total count
+      setTotal(prev => prev - 1);
+      
+    } catch (err) {
+      // Revert optimistic update on error
+      window.location.reload(); // Simple revert - you could implement more sophisticated error handling
+      alert(t.history.deleteError || "ไม่สามารถลบประวัติรายการได้");
+    }
+  }
+
+  const handleDeleteCancel = () => {
+    setDeleteModal({ isOpen: false, itemId: null, lessonTitle: '' });
+  }
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-4">
@@ -187,7 +329,9 @@ export default function HistoryPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.totalTime}</p>
-                  <p className="text-3xl font-bold text-black dark:text-white">{totalTimeSpent} {t.history.minutes}</p>
+                  <p className="text-3xl font-bold text-black dark:text-white">
+                    {formatMinutes(totalTimeSpent)}
+                  </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-black to-gray-700 rounded-xl flex items-center justify-center">
                   <Clock className="w-6 h-6 text-white" />
@@ -209,7 +353,7 @@ export default function HistoryPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={clearFilters}
+                  onClick={clearMainFilters}
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-4 h-4 mr-1" />
@@ -231,7 +375,7 @@ export default function HistoryPage() {
                   />
                 </div>
               </div>
-              <Select value={filterCategory} onValueChange={setFilterCategory}>
+              {/* <Select value={filterCategory} onValueChange={setFilterCategory}>
                 <SelectTrigger className="w-full md:w-48 glass border-0">
                   <SelectValue placeholder={t.history.category} />
                 </SelectTrigger>
@@ -243,7 +387,12 @@ export default function HistoryPage() {
                     </SelectItem>
                   ))}
                 </SelectContent>
-              </Select>
+              </Select> */}
+              {filterCategory !== 'all' && (
+                <Button variant="ghost" size="sm" onClick={clearCategoryFilter}>
+                  {t.history.clearFilters || "Clear Category"}
+                </Button>
+              )}
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-full md:w-48 glass border-0">
                   <SelectValue placeholder={t.history.sortBy} />
@@ -258,6 +407,26 @@ export default function HistoryPage() {
           </CardContent>
         </Card>
 
+        {/* Add subject filter dropdown above the history list */}
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
+          {/* <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+            <SelectTrigger className="w-full md:w-48 glass border-0">
+              <SelectValue placeholder="Subject" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Subjects</SelectItem>
+              {subjects.map((subject) => (
+                <SelectItem key={subject} value={subject}>{subject}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select> */}
+          {subjectFilter !== 'all' && (
+            <Button variant="ghost" size="sm" onClick={clearSubjectFilter}>
+              Clear Subject Filter
+            </Button>
+          )}
+        </div>
+
         {/* Loading/Error State */}
         {loading && (
           <div className="text-center py-12 text-gray-500">{t.history.loading}</div>
@@ -270,7 +439,7 @@ export default function HistoryPage() {
         {!loading && !error && (
           <>
             <div className="space-y-4">
-              {history.map((item) => (
+              {history.filter(item => subjectFilter === 'all' || item.subject === subjectFilter).map((item) => (
                 <Card key={item.id} className="glass-card hover:scale-[1.02] transition-transform duration-300">
                   <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -308,6 +477,14 @@ export default function HistoryPage() {
                           onClick={() => router.push(`/history/${item.id}`)}
                         >
                           {t.history.viewDetail}
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          className="glass-button hover:bg-red-600 transition-colors"
+                          onClick={() => handleDeleteClick(item.id, item.lesson_title)}
+                          title={t.history.delete || "ลบ"}
+                        >
+                          <Trash className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -376,7 +553,7 @@ export default function HistoryPage() {
               </p>
               <div className="flex gap-2 justify-center">
                 {hasActiveFilters && (
-                  <Button variant="outline" className="glass-button" onClick={clearFilters}>
+                  <Button variant="outline" className="glass-button" onClick={clearMainFilters}>
                     {t.history.clearFilters}
                   </Button>
                 )}
@@ -387,6 +564,15 @@ export default function HistoryPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Beautiful Delete Confirmation Modal */}
+        <DeleteModal
+          isOpen={deleteModal.isOpen}
+          onClose={handleDeleteCancel}
+          onConfirm={handleDeleteConfirm}
+          lessonTitle={deleteModal.lessonTitle}
+          t={t}
+        />
       </div>
     </div>
   )
