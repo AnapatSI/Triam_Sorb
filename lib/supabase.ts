@@ -65,16 +65,45 @@ export const supabaseApi = {
     return { data, error }
   },
 
-  async getLearningHistory(userId: string, page: number, pageSize: number) {
+  async getLearningHistory(
+    userId: string, 
+    page: number, 
+    pageSize: number,
+    options?: {
+      searchTerm?: string
+      category?: string
+      sortBy?: 'date' | 'score' | 'title'
+    }
+  ) {
     const start = (page - 1) * pageSize
     const end = start + pageSize - 1
 
-    const { data, error, count } = await supabase
+    let query = supabase
       .from("learning_sessions")
       .select("*", { count: "exact" })
       .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .range(start, end)
+
+    // Apply search filter
+    if (options?.searchTerm) {
+      query = query.ilike("lesson_title", `%${options.searchTerm}%`)
+    }
+
+    // Apply category filter
+    if (options?.category && options.category !== "all") {
+      query = query.eq("category", options.category)
+    }
+
+    // Apply sorting
+    if (options?.sortBy === "score") {
+      query = query.order("comprehension_score", { ascending: false })
+    } else if (options?.sortBy === "title") {
+      query = query.order("lesson_title", { ascending: true })
+    } else {
+      // Default sort by date (newest first)
+      query = query.order("created_at", { ascending: false })
+    }
+
+    const { data, error, count } = await query.range(start, end)
     return { data, error, count }
   },
 
@@ -86,5 +115,19 @@ export const supabaseApi = {
   async updateLearningSession(id: string, updates: Partial<LearningSession>) {
     const { data, error } = await supabase.from("learning_sessions").update(updates).eq("id", id).select().single()
     return { data, error }
+  },
+
+  // Get unique categories for filter dropdown
+  async getCategories(userId: string) {
+    const { data, error } = await supabase
+      .from("learning_sessions")
+      .select("category")
+      .eq("user_id", userId)
+      .not("category", "is", null)
+    
+    if (error) return { data: [], error }
+    
+    const categories = [...new Set(data.map(item => item.category))].filter(Boolean)
+    return { data: categories, error: null }
   },
 }

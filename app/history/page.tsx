@@ -1,14 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Search, TrendingUp, FileText, Brain, Clock, Filter } from "lucide-react"
+import { Calendar, Search, TrendingUp, FileText, Brain, Clock, Filter, X } from "lucide-react"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 import { supabaseApi } from "@/lib/supabase"
+import { useAuth } from "@/components/AuthProvider"
+import { useRouter } from "next/navigation"
 
 const PAGE_SIZE = 5
 
@@ -26,29 +28,63 @@ const getScoreBadgeVariant = (score: number) => {
 }
 
 export default function HistoryPage() {
+  const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterCategory, setFilterCategory] = useState("all")
   const [sortBy, setSortBy] = useState("date")
   const [history, setHistory] = useState<any[]>([])
+  const [categories, setCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const router = useRouter()
 
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout
+      return (value: string) => {
+        clearTimeout(timeoutId)
+        timeoutId = setTimeout(() => {
+          setSearchTerm(value)
+          setPage(1) // Reset to first page when searching
+        }, 300)
+      }
+    })(),
+    []
+  )
+
+  // Fetch categories
   useEffect(() => {
+    if (!user?.id) return
+    
+    async function fetchCategories() {
+      const { data } = await supabaseApi.getCategories(user!.id)
+      setCategories(data)
+    }
+    fetchCategories()
+  }, [user])
+
+  // Fetch history with filters
+  useEffect(() => {
+    if (!user?.id) return
+
     let isMounted = true
     async function fetchHistory() {
       setLoading(true)
       setError(null)
       try {
-        const user = await supabaseApi.getCurrentUser()
-        if (!user) {
-          setError("ไม่พบผู้ใช้ กรุณาเข้าสู่ระบบใหม่อีกครั้ง")
-          setLoading(false)
-          return
-        }
-        // Get paginated data
-        const { data, error, count } = await supabaseApi.getLearningHistory(user.id, page, PAGE_SIZE)
+        const { data, error, count } = await supabaseApi.getLearningHistory(
+          user!.id, 
+          page, 
+          PAGE_SIZE,
+          {
+            searchTerm: searchTerm || undefined,
+            category: filterCategory !== "all" ? filterCategory : undefined,
+            sortBy: sortBy as 'date' | 'score' | 'title'
+          }
+        )
 
         if (error) {
           throw error
@@ -59,7 +95,9 @@ export default function HistoryPage() {
           setTotal(count ?? 0)
         }
       } catch (err: any) {
-        setError(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล")
+        if (isMounted) {
+          setError(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล")
+        }
       } finally {
         if (isMounted) {
           setLoading(false)
@@ -70,38 +108,39 @@ export default function HistoryPage() {
     return () => {
       isMounted = false
     }
-  }, [page])
+  }, [user, page, searchTerm, filterCategory, sortBy])
 
-  // Filtering
-  const filteredHistory = history.filter((item) => {
-    const matchesSearch = item.lesson_title.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = filterCategory === "all" || item.category === filterCategory
-    return matchesSearch && matchesCategory
-  })
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [filterCategory, sortBy])
 
-  // Sorting
-  const sortedHistory = [...filteredHistory].sort((a, b) => {
-    if (sortBy === "score") return (b.comprehension_score || 0) - (a.comprehension_score || 0)
-    if (sortBy === "title") return a.lesson_title.localeCompare(b.lesson_title)
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  })
-
-  // Stats
+  // Stats calculation (only for displayed data)
   const averageScore =
-    sortedHistory.length > 0
-      ? Math.round(sortedHistory.reduce((sum, item) => sum + (item.comprehension_score || 0), 0) / sortedHistory.length)
+    history.length > 0
+      ? Math.round(history.reduce((sum, item) => sum + (item.comprehension_score || 0), 0) / history.length)
       : 0
-  const totalTimeSpent = sortedHistory.reduce((sum, item) => sum + (parseInt(item.time_spent || "0") || 0), 0)
+  const totalTimeSpent = history.reduce((sum, item) => sum + (parseInt(item.time_spent || "0") || 0), 0)
   const totalLessons = total
 
   // Pagination controls
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
+  // Clear filters
+  const clearFilters = () => {
+    setSearchTerm("")
+    setFilterCategory("all")
+    setSortBy("date")
+    setPage(1)
+  }
+
+  const hasActiveFilters = searchTerm || filterCategory !== "all" || sortBy !== "date"
+
   return (
     <div className="min-h-screen pt-32 pb-20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             ประวัติการเรียนรู้
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
@@ -157,10 +196,23 @@ export default function HistoryPage() {
         {/* Filters and Search */}
         <Card className="glass-card mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              กรองและค้นหา
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="w-5 h-5" />
+                กรองและค้นหา
+              </CardTitle>
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  ล้างตัวกรอง
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row gap-4">
@@ -169,8 +221,8 @@ export default function HistoryPage() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     placeholder="ค้นหาบทเรียน..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    defaultValue={searchTerm}
+                    onChange={(e) => debouncedSearch(e.target.value)}
                     className="pl-10 glass border-0"
                   />
                 </div>
@@ -181,11 +233,11 @@ export default function HistoryPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">ทุกหมวดหมู่</SelectItem>
-                  <SelectItem value="AI/ML">AI/ML</SelectItem>
-                  <SelectItem value="การพัฒนาเว็บ">การพัฒนาเว็บ</SelectItem>
-                  <SelectItem value="ฐานข้อมูล">ฐานข้อมูล</SelectItem>
-                  <SelectItem value="การเขียนโปรแกรม">การเขียนโปรแกรม</SelectItem>
-                  <SelectItem value="ความปลอดภัย">ความปลอดภัย</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
@@ -214,7 +266,7 @@ export default function HistoryPage() {
         {!loading && !error && (
           <>
             <div className="space-y-4">
-              {sortedHistory.map((item) => (
+              {history.map((item) => (
                 <Card key={item.id} className="glass-card hover:scale-[1.02] transition-transform duration-300">
                   <CardContent className="p-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -228,7 +280,7 @@ export default function HistoryPage() {
                             <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
-                                <span>{item.created_at?.slice(0, 10)}</span>
+                                <span>{new Date(item.created_at).toLocaleDateString('th-TH')}</span>
                               </div>
                               <div className="flex items-center gap-1">
                                 <Clock className="w-4 h-4" />
@@ -246,7 +298,11 @@ export default function HistoryPage() {
                           <p className={`text-2xl font-bold ${getScoreColor(item.comprehension_score || 0)}`}>{item.comprehension_score || 0}%</p>
                           <p className="text-sm text-gray-600 dark:text-gray-300">คะแนนความเข้าใจ</p>
                         </div>
-                        <Button variant="outline" className="glass-button">
+                        <Button 
+                          variant="outline" 
+                          className="glass-button"
+                          onClick={() => router.push(`/history/${item.id}`)}
+                        >
                           ดูรายละเอียด
                         </Button>
                       </div>
@@ -299,19 +355,31 @@ export default function HistoryPage() {
           </>
         )}
 
-        {!loading && !error && sortedHistory.length === 0 && (
+        {!loading && !error && history.length === 0 && (
           <Card className="glass-card">
             <CardContent className="p-12 text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-gray-400 to-gray-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <FileText className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">ไม่พบบทเรียน</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {hasActiveFilters ? "ไม่พบบทเรียนที่ตรงกับเกณฑ์" : "ไม่พบบทเรียน"}
+              </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                ไม่มีบทเรียนที่ตรงกับเกณฑ์การค้นหาของคุณ
+                {hasActiveFilters 
+                  ? "ลองเปลี่ยนเกณฑ์การค้นหาหรือล้างตัวกรอง"
+                  : "เริ่มต้นการเรียนรู้ของคุณด้วยการอัปโหลดบทเรียนแรก"
+                }
               </p>
-              <Button className="glass-button" asChild>
-                <a href="/upload">อัปโหลดบทเรียนใหม่</a>
-              </Button>
+              <div className="flex gap-2 justify-center">
+                {hasActiveFilters && (
+                  <Button variant="outline" className="glass-button" onClick={clearFilters}>
+                    ล้างตัวกรอง
+                  </Button>
+                )}
+                <Button className="glass-button" asChild>
+                  <a href="/upload">อัปโหลดบทเรียนใหม่</a>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}

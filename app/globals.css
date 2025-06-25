@@ -27,25 +27,25 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 0%;
-    --card-foreground: 0 0% 100%;
-    --popover: 0 0% 0%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 0 0% 10%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 0 0% 10%;
-    --accent-foreground: 0 0% 100%;
+    --background: 0 0% 5%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 0 0% 95%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 75%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 95%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 100%;
+    --destructive-foreground: 0 0% 95%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 0 0% 95%;
   }
 }
 
@@ -60,14 +60,14 @@
 
 @layer components {
   .glass {
-    @apply backdrop-blur-xl bg-white/20 dark:bg-white/10 border border-white/20 dark:border-white/10;
+    @apply backdrop-blur-xl bg-white/20 dark:bg-white/15 border border-white/20 dark:border-white/15;
   }
 
   .glass-card {
-    @apply glass rounded-2xl shadow-xl shadow-black/5 dark:shadow-black/20;
+    @apply glass rounded-2xl shadow-xl shadow-black/5 dark:shadow-black/30;
   }
 
   .glass-button {
-    @apply glass rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:bg-white/30 dark:hover:bg-white/20 hover:scale-105 active:scale-95;
+    @apply glass rounded-xl px-6 py-3 font-medium transition-all duration-300 hover:bg-white/30 dark:hover:bg-white/25 hover:scale-105 active:scale-95;
   }
 }

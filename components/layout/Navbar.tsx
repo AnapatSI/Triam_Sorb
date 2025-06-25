@@ -5,13 +5,13 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X, BookOpen, Upload, History, MessageSquare, User } from "lucide-react"
+import { Menu, X, BookOpen, Upload, History, MessageSquare, User, Home } from "lucide-react"
 import { useAuth } from "@/components/AuthProvider"
 
 const navigation = [
-  { name: "หน้าแรก", href: "/", icon: BookOpen },
+  { name: "หน้าแรก", href: "/", icon: Home },
+  { name: "เรียนรู้", href: "/learn", icon: BookOpen },
   { name: "อัปโหลด", href: "/upload", icon: Upload },
-  { name: "เรียนรู้", href: "/learn", icon: MessageSquare },
   { name: "ประวัติ", href: "/history", icon: History },
 ]
 
@@ -31,12 +31,12 @@ export default function Navbar() {
           <div className="w-8 h-8 bg-gradient-to-br from-black to-gray-800 rounded-lg flex items-center justify-center">
             <BookOpen className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-black to-gray-800 bg-clip-text text-transparent">
+          <span className="text-xl font-bold bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             TRIAM SORB
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation - Centered */}
         <div className="hidden md:flex items-center space-x-1">
           {navigation.map((item) => {
             const Icon = item.icon
@@ -47,8 +47,8 @@ export default function Navbar() {
                 href={item.href}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-300 ${
                   isActive
-                    ? "bg-white/40 dark:bg-white/20 text-black dark:text-white"
-                    : "hover:bg-white/20 dark:hover:bg-white/10"
+                    ? "bg-white/40 dark:bg-white/30 text-black dark:text-white"
+                    : "hover:bg-white/20 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -63,7 +63,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link href="/dashboard">
-                <Button variant="ghost" className="flex items-center space-x-2">
+                <Button variant="ghost" className="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white">
                   <User className="w-4 h-4" />
                   <span className="text-sm">{user.email}</span>
                 </Button>
@@ -86,7 +86,7 @@ export default function Navbar() {
             variant="ghost"
             size="icon"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="glass rounded-xl"
+            className="glass rounded-xl text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
@@ -106,8 +106,8 @@ export default function Navbar() {
                   href={item.href}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                     isActive
-                      ? "bg-white/40 dark:bg-white/20 text-black dark:text-white"
-                      : "hover:bg-white/20 dark:hover:bg-white/10"
+                      ? "bg-white/40 dark:bg-white/30 text-black dark:text-white"
+                      : "hover:bg-white/20 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -119,7 +119,7 @@ export default function Navbar() {
             {user && (
               <Link
                 href="/dashboard"
-                className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-white/10"
+                className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <User className="w-5 h-5" />
