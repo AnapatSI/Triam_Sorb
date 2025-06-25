@@ -9,10 +9,10 @@ interface HeroProps {
 
 export default function Hero({ user }: HeroProps) {
   return (
-    <section className="pt-32 pb-20 px-4">
+    <section className="pt-32 pb-20 px-4 mt-12 mb-12">
       <div className="max-w-6xl mx-auto text-center">
-        <div className="glass-card p-12 mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-black via-gray-800 to-black dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
+        <div className="glass-card pt-12 pb-12 mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold pb-5 mb-8 bg-gradient-to-r from-black via-gray-800 to-black dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
             เรียนรู้อย่างชาญฉลาดด้วย AI
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">

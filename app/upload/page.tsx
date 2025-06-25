@@ -85,12 +85,12 @@ export default function UploadPage() {
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-12 mt-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             อัปโหลดบทเรียนของคุณ
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-1xl mx-auto">
             อัปโหลดเนื้อหาการศึกษาของคุณและให้ AI ของเราช่วยให้คุณเรียนรู้ได้อย่างมีประสิทธิภาพมากขึ้น
           </p>
         </div>

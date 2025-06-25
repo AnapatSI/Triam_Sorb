@@ -140,10 +140,10 @@ export default function HistoryPage() {
     <div className="min-h-screen pt-32 pb-20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mt-12 mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             ประวัติการเรียนรู้
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-1xl mx-auto">
             ติดตามความก้าวหน้าและทบทวนการเดินทางการเรียนรู้ของคุณด้วยการวิเคราะห์ที่ละเอียด
           </p>
         </div>

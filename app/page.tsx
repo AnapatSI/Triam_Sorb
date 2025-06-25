@@ -14,9 +14,9 @@ export default function HomePage() {
     <main className="min-h-screen">
       <Suspense fallback={<div>Loading...</div>}>
         <Hero user={user} />
-        <Features />
+        {/* <Features /> */}
         <HowItWorks />
-        <CTA user={user} />
+        {/* <CTA user={user} /> */}
       </Suspense>
     </main>
   )

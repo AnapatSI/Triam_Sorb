@@ -111,13 +111,13 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-20 px-4">
+    <div className="min-h-screen pt-36 pb-20 px-5">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12 mt-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             แชร์ความเข้าใจของคุณ
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-1xl mx-auto">
             อ่านบทเรียนด้านล่างและเขียนสิ่งที่คุณเข้าใจ AI ของเราจะวิเคราะห์ความเข้าใจของคุณและให้ข้อเสนอแนะ
           </p>
         </div>
@@ -249,7 +249,7 @@ export default function LearnPage() {
                   </p>
                 </div>
 
-                {/* Raw Gemini Response (Debug/Info) */}
+                {/* Raw Gemini Response (Debug/Info)
                 {analysisResult.rawGeminiResponse && (
                   <div className="glass rounded-xl p-6">
                     <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-200">Raw Gemini Response</h3>
@@ -257,7 +257,7 @@ export default function LearnPage() {
                       {analysisResult.rawGeminiResponse}
                     </pre>
                   </div>
-                )}
+                )} */}
 
                 {/* Strengths */}
                 {analysisResult.strengths.length > 0 && (
