@@ -177,7 +177,11 @@ const th = {
     noLessonsWithFilters: "ไม่พบบทเรียนที่ตรงกับเกณฑ์",
     tryChangingFilters: "ลองเปลี่ยนเกณฑ์การค้นหาหรือล้างตัวกรอง",
     startLearning: "เริ่มต้นการเรียนรู้ของคุณด้วยการอัปโหลดบทเรียนแรก",
-    viewDetail: "ดูรายละเอียด"
+    viewDetail: "ดูรายละเอียด",
+    reviewUnderstanding: "ทบทวนความเข้าใจ",
+    confirmDelete: "คุณแน่ใจหรือว่าต้องการลบประวัติรายการนี้?",
+    deleteError: "ไม่สามารถลบประวัติรายการได้",
+    delete: "ลบ"
   },
   hero: {
     title: "เรียนรู้อย่างชาญฉลาดด้วย AI",

@@ -23,8 +23,7 @@ import { useToast } from "@/hooks/use-toast"
 import { AIAnalyzer, type AIAnalysisResult, type KnowledgeValidationResult } from "@/lib/ai-analyzer"
 import { type ParsedContent } from "@/lib/file-parser"
 import { useTranslation } from '@/hooks/useTranslation'
-import { toLocalizedNumber } from "@/lib/utils"
-import { useLanguage } from "@/hooks/useLanguage"
+import { useLanguage } from '@/components/LanguageProvider'
 
 const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""; // หรือวิธีที่คุณเก็บ key
 
@@ -333,7 +332,7 @@ export default function EnhancedLearnPage() {
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold">{t.enhancedLearn.factualAccuracy}</h3>
                       <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        {toLocalizedNumber(analysisResult.factualAccuracy, language)}%
+                        {analysisResult.factualAccuracy}%
                       </div>
                     </div>
                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">

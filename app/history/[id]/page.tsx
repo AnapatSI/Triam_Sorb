@@ -10,6 +10,7 @@ import { supabase, type LearningSession } from "@/lib/supabase"
 import { useAuth } from "@/components/AuthProvider"
 import { useTranslation } from '@/hooks/useTranslation';
 import { useLanguage } from '@/components/LanguageProvider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function LessonDetailPage() {
   const params = useParams()
@@ -20,6 +21,8 @@ export default function LessonDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const t = useTranslation();
   const { language } = useLanguage();
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     if (!params.id || !user?.id) return
@@ -80,6 +83,69 @@ export default function LessonDetailPage() {
     if (score >= 80) return "secondary"
     return "outline"
   }
+
+  // ฟังก์ชันสำหรับแปลง lesson_content จาก JSON เป็นข้อความ
+  const formatLessonContent = (content: any) => {
+    if (!content) return t.history.noContent;
+    
+    // ถ้าเป็น string แล้ว return เลย
+    if (typeof content === 'string') {
+      return content;
+    }
+    
+    // ถ้าเป็น object ให้แปลงเป็นข้อความที่อ่านง่าย
+    if (typeof content === 'object') {
+      try {
+        // ถ้ามี property ที่เป็นเนื้อหาหลัก
+        if (content.content) return content.content;
+        if (content.text) return content.text;
+        if (content.body) return content.body;
+        if (content.description) return content.description;
+        
+        // ถ้าเป็น array ให้รวมกัน
+        if (Array.isArray(content)) {
+          return content.map(item => {
+            if (typeof item === 'string') return item;
+            if (typeof item === 'object') return item.content || item.text || JSON.stringify(item);
+            return String(item);
+          }).join('\n\n');
+        }
+        
+        // สำหรับ object อื่นๆ ให้แสดงเป็นข้อความที่อ่านง่าย
+        return Object.entries(content)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join('\n');
+      } catch (e) {
+        return String(content);
+      }
+    }
+    
+    return String(content);
+  };
+
+  // ฟังก์ชันสำหรับแสดงเวลาในหน่วยนาที
+  const formatTimeSpent = (timeSpent: any) => {
+    if (!timeSpent) return `0 ${t.history.minutes}`;
+    
+    // ถ้าเป็นตัวเลขแล้ว
+    if (typeof timeSpent === 'number') {
+      return `${timeSpent} ${t.history.minutes}`;
+    }
+    
+    // ถ้าเป็น string ที่มีตัวเลข
+    if (typeof timeSpent === 'string') {
+      const numericValue = parseInt(timeSpent.replace(/\D/g, ''), 10);
+      if (!isNaN(numericValue)) {
+        return `${numericValue} ${t.history.minutes}`;
+      }
+    }
+    
+    return `0 ${t.history.minutes}`;
+  };
+
+  const clearCategoryFilter = () => {
+    setFilterCategory("all");
+  };
 
   if (loading) {
     return (
@@ -174,7 +240,7 @@ export default function LessonDetailPage() {
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.timeSpent}</p>
                   <p className="text-3xl font-bold text-black dark:text-white">
-                    {lesson.time_spent || '0'} {t.history.minutes}
+                    {formatTimeSpent(lesson.time_spent)}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-black to-gray-700 rounded-xl flex items-center justify-center">
@@ -199,11 +265,24 @@ export default function LessonDetailPage() {
               <CardContent className="space-y-4">
                 <div>
                   <h3 className="text-xl font-semibold mb-2">{lesson.lesson_title}</h3>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {lesson.category && (
-                      <Badge variant="secondary" className="glass">
-                        {lesson.category}
-                      </Badge>
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <Select value={filterCategory} onValueChange={setFilterCategory}>
+                      <SelectTrigger className="w-full md:w-48 glass border-0">
+                        <SelectValue placeholder={t.history.category} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">{t.history.allCategories}</SelectItem>
+                        {categories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {filterCategory !== "all" && (
+                      <Button variant="ghost" size="sm" onClick={clearCategoryFilter}>
+                        {t.history.clearFilters || "Clear Category"}
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -220,7 +299,7 @@ export default function LessonDetailPage() {
                     <Clock className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.timeSpent}</p>
-                      <p className="font-medium">{lesson.time_spent || t.history.notSpecified}</p>
+                      <p className="font-medium">{formatTimeSpent(lesson.time_spent) || t.history.notSpecified}</p>
                     </div>
                   </div>
                 </div>
@@ -238,7 +317,7 @@ export default function LessonDetailPage() {
               <CardContent>
                 <div className="prose prose-gray dark:prose-invert max-w-none">
                   <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {lesson.lesson_content || t.history.noContent}
+                    {formatLessonContent(lesson.lesson_content)}
                   </div>
                 </div>
               </CardContent>
@@ -345,4 +424,4 @@ export default function LessonDetailPage() {
       </div>
     </div>
   )
-} 
+}

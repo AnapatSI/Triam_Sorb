@@ -12,7 +12,7 @@ import { useTranslation } from "@/hooks/useTranslation"
 
 const navigation = [
   { key: "home", href: "/", icon: Home },
-  { key: "learn", href: "/learn", icon: BookOpen },
+  // { key: "learn", href: "/learn", icon: BookOpen },
   { key: "upload", href: "/upload", icon: Upload },
   { key: "history", href: "/history", icon: History },
 ]
@@ -52,9 +52,9 @@ export default function Navbar() {
               case "home":
                 label = t.common?.home || "หน้าแรก"
                 break
-              case "learn":
-                label = t.common?.learn || "เรียนรู้"
-                break
+              // case "learn":
+              //   label = t.common?.learn || "เรียนรู้"
+              //   break
               case "upload":
                 label = t.common?.upload || "อัปโหลด"
                 break
@@ -163,9 +163,9 @@ export default function Navbar() {
                 case "home":
                   label = t.common?.home || "หน้าแรก"
                   break
-                case "learn":
-                  label = t.common?.learn || "เรียนรู้"
-                  break
+                // case "learn":
+                //   label = t.common?.learn || "เรียนรู้"
+                //   break
                 case "upload":
                   label = t.common?.upload || "อัปโหลด"
                   break

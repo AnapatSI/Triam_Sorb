@@ -223,14 +223,24 @@ Return only JSON. Do not add any other text.`
   // แปลงผลลัพธ์จาก AI เป็น AIAnalysisResult
   private static parseAIResponse(aiResponse: string, lessonContent: LessonContent, userUnderstanding: string): AIAnalysisResult {
     try {
-      // Clean the response to extract JSON
-      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/)
+      // Try to extract JSON more flexibly
+      let jsonMatch = aiResponse.match(/```json[\s\S]*?({[\\s\\S]*})[\s\S]*?```/i)
       if (!jsonMatch) {
-        throw new Error('No JSON found in AI response')
+        // Fallback: extract first JSON object anywhere in the response
+        jsonMatch = aiResponse.match(/({[\s\S]*})/)
       }
-
-      const parsed = JSON.parse(jsonMatch[0])
-      
+      if (!jsonMatch) {
+        // Log the full response for debugging
+        console.error('AI response did not contain JSON:', aiResponse)
+        throw new Error('AI did not return valid JSON. Please try again or contact support.');
+      }
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+      } catch (e) {
+        console.error('Failed to parse JSON from AI response:', aiResponse);
+        throw new Error('Failed to parse AI response. Please try again.');
+      }
       return {
         comprehensionScore: parsed.comprehensionScore || 0,
         isCorrect: parsed.isCorrect || false,

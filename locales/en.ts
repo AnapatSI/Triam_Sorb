@@ -181,7 +181,11 @@ const en = {
     noLessonsWithFilters: "No lessons match your criteria",
     tryChangingFilters: "Try changing your search or clearing filters.",
     startLearning: "Start your learning journey by uploading your first lesson.",
-    viewDetail: "View Details"
+    viewDetail: "View Details",
+    reviewUnderstanding: "Review Understanding",
+    confirmDelete: "Are you sure you want to delete this history item?",
+    deleteError: "Failed to delete history item.",
+    delete: "Delete"
   },
   hero: {
     title: "Learn Smart with AI",

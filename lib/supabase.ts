@@ -130,4 +130,9 @@ export const supabaseApi = {
     const categories = [...new Set(data.map(item => item.category))].filter(Boolean)
     return { data: categories, error: null }
   },
+
+  async deleteLearningHistory(id: string) {
+    const { error } = await supabase.from("learning_sessions").delete().eq("id", id)
+    return { error }
+  },
 }
