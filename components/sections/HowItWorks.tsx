@@ -27,7 +27,7 @@ const steps = [
   },
 ]
 
-export default function HowItWorks() {
+export default function HowItWorks({ language }: { language: 'en' | 'th' }) {
   return (
     <section className="py-20 px-4 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-900/20 dark:to-gray-800/20">
       <div className="max-w-6xl mx-auto">

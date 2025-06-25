@@ -5,9 +5,10 @@ import { User } from "@supabase/supabase-js"
 
 interface CTAProps {
   user: User | null
+  language: 'en' | 'th'
 }
 
-export default function CTA({ user }: CTAProps) {
+export default function CTA({ user, language }: CTAProps) {
   return (
     <section className="py-20 px-4">
       <div className="max-w-4xl mx-auto">

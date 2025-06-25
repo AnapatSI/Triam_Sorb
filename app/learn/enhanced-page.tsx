@@ -22,6 +22,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { AIAnalyzer, type AIAnalysisResult, type KnowledgeValidationResult } from "@/lib/ai-analyzer"
 import { type ParsedContent } from "@/lib/file-parser"
+import { useTranslation } from '@/hooks/useTranslation'
 
 const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""; // หรือวิธีที่คุณเก็บ key
 
@@ -55,6 +56,7 @@ export default function EnhancedLearnPage() {
   const [hasStoredLesson, setHasStoredLesson] = useState(false)
   const [aiConfigured, setAiConfigured] = useState(false)
   const { toast } = useToast()
+  const t = useTranslation()
 
   useEffect(() => {
     setIsClient(true)
@@ -163,26 +165,26 @@ export default function EnhancedLearnPage() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 bg-clip-text text-transparent">
-            ระบบวิเคราะห์และตรวจสอบความรู้ขั้นสูง
+            {t.enhancedLearn.title}
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            อ่านบทเรียนและเขียนสิ่งที่คุณเข้าใจ AI ของเราจะวิเคราะห์ความเข้าใจและตรวจสอบความถูกต้องของความรู้
+            {t.enhancedLearn.description}
           </p>
           
           {/* AI Status Indicator */}
           <div className="mt-6 flex items-center justify-center gap-2">
             <div className={`w-3 h-3 rounded-full ${aiConfigured ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
             <span className="text-sm text-gray-600 dark:text-gray-300">
-              {aiConfigured ? 'AI เชื่อมต่อแล้ว' : 'ใช้ AI จำลอง (Mock)'}
+              {aiConfigured ? t.enhancedLearn.aiConnected : t.enhancedLearn.aiMock}
             </span>
           </div>
         </div>
 
         <Tabs defaultValue="lesson" className="space-y-8">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="lesson">บทเรียน</TabsTrigger>
-            <TabsTrigger value="analysis">การวิเคราะห์</TabsTrigger>
-            <TabsTrigger value="validation">การตรวจสอบความรู้</TabsTrigger>
+            <TabsTrigger value="lesson">{t.enhancedLearn.tabs.lesson}</TabsTrigger>
+            <TabsTrigger value="analysis">{t.enhancedLearn.tabs.analysis}</TabsTrigger>
+            <TabsTrigger value="validation">{t.enhancedLearn.tabs.validation}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="lesson" className="space-y-8">
@@ -197,14 +199,14 @@ export default function EnhancedLearnPage() {
                   <div className="flex gap-2">
                     <Badge variant="secondary" className="glass">
                       <Clock className="w-3 h-3 mr-1" />
-                      {currentLesson.estimatedReadTime} นาที
+                      {currentLesson.estimatedReadTime} {t.enhancedLearn.tabs.lesson}
                     </Badge>
                     <Badge variant="secondary" className="glass">
-                      {currentLesson.wordCount.toLocaleString()} คำ
+                      {currentLesson.wordCount.toLocaleString()} {t.enhancedLearn.charCount}
                     </Badge>
                   </div>
                 </div>
-                <CardDescription>อ่านบทเรียนนี้อย่างระมัดระวังแล้วแชร์ความเข้าใจของคุณ</CardDescription>
+                <CardDescription>{t.enhancedLearn.lessonInstruction}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="prose prose-gray dark:prose-invert max-w-none">
@@ -212,12 +214,8 @@ export default function EnhancedLearnPage() {
                     <div className="space-y-4">
                       {currentLesson.sections.map((section, index) => (
                         <div key={index} className="mb-4">
-                          <h3 className={`font-semibold mb-2 ${section.level === 1 ? 'text-lg' : 'text-base'}`}>
-                            {section.title}
-                          </h3>
-                          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                            {section.content}
-                          </p>
+                          <h3 className={`font-semibold mb-2 ${section.level === 1 ? 'text-lg' : 'text-base'}`}>{section.title}</h3>
+                          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{section.content}</p>
                         </div>
                       ))}
                     </div>
@@ -233,23 +231,21 @@ export default function EnhancedLearnPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="w-5 h-5" />
-                  ความเข้าใจของคุณ
+                  {t.enhancedLearn.understanding}
                 </CardTitle>
-                <CardDescription>เขียนสิ่งที่คุณเข้าใจจากบทเรียนด้วยคำพูดของคุณเอง</CardDescription>
+                <CardDescription>{t.enhancedLearn.writeUnderstanding}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <Textarea
-                  placeholder="แชร์สิ่งที่คุณเรียนรู้จากบทเรียนนี้ อธิบายแนวคิดหลักด้วยคำพูดของคุณเอง..."
+                  placeholder={t.enhancedLearn.placeholder}
                   value={understanding}
                   onChange={(e) => setUnderstanding(e.target.value)}
                   className="min-h-[200px] glass border-0 resize-none"
                 />
-
                 <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>{understanding.length} ตัวอักษร</span>
-                  <span>แนะนำอย่างน้อย 50 ตัวอักษร</span>
+                  <span>{understanding.length} {t.enhancedLearn.charCount}</span>
+                  <span>{t.enhancedLearn.minChar}</span>
                 </div>
-
                 <div className="flex gap-4">
                   <Button
                     onClick={handleUnderstandingAnalysis}
@@ -260,16 +256,15 @@ export default function EnhancedLearnPage() {
                     {isAnalyzing ? (
                       <>
                         <Brain className="w-4 h-4 mr-2 animate-pulse" />
-                        กำลังวิเคราะห์...
+                        {t.enhancedLearn.analyzing}
                       </>
                     ) : (
                       <>
                         <Target className="w-4 h-4 mr-2" />
-                        วิเคราะห์ความเข้าใจ
+                        {t.enhancedLearn.analyze}
                       </>
                     )}
                   </Button>
-
                   <Button
                     onClick={handleKnowledgeValidation}
                     disabled={isValidating || understanding.length < 10}
@@ -280,12 +275,12 @@ export default function EnhancedLearnPage() {
                     {isValidating ? (
                       <>
                         <Zap className="w-4 h-4 mr-2 animate-pulse" />
-                        กำลังตรวจสอบ...
+                        {t.enhancedLearn.validating}
                       </>
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        ตรวจสอบความรู้
+                        {t.enhancedLearn.validate}
                       </>
                     )}
                   </Button>
@@ -300,15 +295,15 @@ export default function EnhancedLearnPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Target className="w-5 h-5" />
-                    ผลการวิเคราะห์ความเข้าใจ
+                    {t.enhancedLearn.analysisResult}
                   </CardTitle>
-                  <CardDescription>การวิเคราะห์โดย AI เกี่ยวกับความเข้าใจของคุณ</CardDescription>
+                  <CardDescription>{t.enhancedLearn.aiAnalysis}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Comprehension Score */}
                   <div className="glass rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">คะแนนความเข้าใจ</h3>
+                      <h3 className="text-lg font-semibold">{t.enhancedLearn.compScore}</h3>
                       <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                         {analysisResult.comprehensionScore}%
                       </div>
@@ -333,7 +328,7 @@ export default function EnhancedLearnPage() {
                   {/* Factual Accuracy */}
                   <div className="glass rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">ความถูกต้องของข้อเท็จจริง</h3>
+                      <h3 className="text-lg font-semibold">{t.enhancedLearn.factualAccuracy}</h3>
                       <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         {analysisResult.factualAccuracy}%
                       </div>
@@ -349,7 +344,7 @@ export default function EnhancedLearnPage() {
                   {/* Confidence Level */}
                   <div className="glass rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">ระดับความเชื่อมั่นของ AI</h3>
+                      <h3 className="text-lg font-semibold">{t.enhancedLearn.aiConfidence}</h3>
                       <Badge 
                         variant={analysisResult.confidenceLevel === 'high' ? 'default' : 
                                 analysisResult.confidenceLevel === 'medium' ? 'secondary' : 'destructive'}
@@ -364,7 +359,7 @@ export default function EnhancedLearnPage() {
                   {/* Strengths */}
                   {analysisResult.strengths.length > 0 && (
                     <div className="glass rounded-xl p-6">
-                      <h3 className="text-lg font-semibold mb-4 text-green-600 dark:text-green-400">✓ จุดแข็ง</h3>
+                      <h3 className="text-lg font-semibold mb-4 text-green-600 dark:text-green-400">{t.enhancedLearn.strengths}</h3>
                       <ul className="space-y-2">
                         {analysisResult.strengths.map((strength, index) => (
                           <li key={index} className="flex items-start gap-2">
@@ -380,7 +375,7 @@ export default function EnhancedLearnPage() {
                   {analysisResult.areasForImprovement.length > 0 && (
                     <div className="glass rounded-xl p-6">
                       <h3 className="text-lg font-semibold mb-4 text-orange-600 dark:text-orange-400">
-                        ⚠ พื้นที่ที่ต้องปรับปรุง
+                        {t.enhancedLearn.improvements}
                       </h3>
                       <ul className="space-y-2">
                         {analysisResult.areasForImprovement.map((area, index) => (
@@ -397,7 +392,7 @@ export default function EnhancedLearnPage() {
                   {analysisResult.misconceptions.length > 0 && (
                     <div className="glass rounded-xl p-6">
                       <h3 className="text-lg font-semibold mb-4 text-red-600 dark:text-red-400">
-                        ❌ ความเข้าใจผิด
+                        {t.enhancedLearn.misconceptions}
                       </h3>
                       <ul className="space-y-2">
                         {analysisResult.misconceptions.map((misconception, index) => (
@@ -414,7 +409,7 @@ export default function EnhancedLearnPage() {
                   {analysisResult.suggestions.length > 0 && (
                     <div className="glass rounded-xl p-6">
                       <h3 className="text-lg font-semibold mb-4 text-blue-600 dark:text-blue-400">
-                        💡 ข้อเสนอแนะ
+                        {t.enhancedLearn.suggestions}
                       </h3>
                       <ul className="space-y-2">
                         {analysisResult.suggestions.map((suggestion, index) => (
@@ -431,7 +426,7 @@ export default function EnhancedLearnPage() {
                   {analysisResult.keyConcepts.length > 0 && (
                     <div className="glass rounded-xl p-6">
                       <h3 className="text-lg font-semibold mb-4 text-purple-600 dark:text-purple-400">
-                        🔑 แนวคิดหลัก
+                        {t.enhancedLearn.keyConcepts}
                       </h3>
                       <div className="flex flex-wrap gap-2">
                         {analysisResult.keyConcepts.map((concept, index) => (
@@ -449,8 +444,8 @@ export default function EnhancedLearnPage() {
                 <CardContent className="pt-6">
                   <div className="text-center text-gray-500">
                     <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>ยังไม่มีการวิเคราะห์ความเข้าใจ</p>
-                    <p className="text-sm">กรุณาเขียนความเข้าใจของคุณและกดปุ่ม "วิเคราะห์ความเข้าใจ"</p>
+                    <p>{t.enhancedLearn.noAnalysis}</p>
+                    <p className="text-sm">{t.enhancedLearn.writeAndAnalyze}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -463,15 +458,15 @@ export default function EnhancedLearnPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CheckCircle className="w-5 h-5" />
-                    ผลการตรวจสอบความรู้
+                    {t.enhancedLearn.validationResult}
                   </CardTitle>
-                  <CardDescription>การตรวจสอบความถูกต้องของความรู้โดย AI</CardDescription>
+                  <CardDescription>{t.enhancedLearn.aiValidation}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Overall Accuracy */}
                   <div className="glass rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold">ความถูกต้องโดยรวม</h3>
+                      <h3 className="text-lg font-semibold">{t.enhancedLearn.overallAccuracy}</h3>
                       <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                         {validationResult.overallAccuracy}%
                       </div>
@@ -489,14 +484,14 @@ export default function EnhancedLearnPage() {
                       ></div>
                     </div>
                     <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
-                      <span>ระดับความเชื่อมั่น: {validationResult.confidence}%</span>
-                      <span>คำถามที่ถูกต้อง: {validationResult.questionResults.filter(r => r.isCorrect).length}/{validationResult.questionResults.length}</span>
+                      <span>{t.enhancedLearn.confidence}: {validationResult.confidence}%</span>
+                      <span>{t.enhancedLearn.correctQuestions}: {validationResult.questionResults.filter(r => r.isCorrect).length}/{validationResult.questionResults.length}</span>
                     </div>
                   </div>
 
                   {/* Question Results */}
                   <div className="glass rounded-xl p-6">
-                    <h3 className="text-lg font-semibold mb-4">ผลการตอบคำถาม</h3>
+                    <h3 className="text-lg font-semibold mb-4">{t.enhancedLearn.questionResults}</h3>
                     <div className="space-y-4">
                       {validationResult.questionResults.map((result, index) => (
                         <div key={index} className="border-l-4 pl-4 py-2" style={{
@@ -511,15 +506,15 @@ export default function EnhancedLearnPage() {
                             <div className="flex-1">
                               <h4 className="font-medium">{result.question}</h4>
                               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                                <strong>คำตอบของคุณ:</strong> {result.userAnswer}
+                                <strong>{t.enhancedLearn.yourAnswer}:</strong> {result.userAnswer}
                               </p>
                               {!result.isCorrect && (
                                 <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                                  <strong>คำตอบที่ถูกต้อง:</strong> {result.correctAnswer}
+                                  <strong>{t.enhancedLearn.correctAnswer}:</strong> {result.correctAnswer}
                                 </p>
                               )}
                               <p className="text-sm text-gray-500 mt-1">
-                                <strong>คำอธิบาย:</strong> {result.explanation}
+                                <strong>{t.enhancedLearn.explanation}:</strong> {result.explanation}
                               </p>
                             </div>
                           </div>
@@ -534,8 +529,8 @@ export default function EnhancedLearnPage() {
                 <CardContent className="pt-6">
                   <div className="text-center text-gray-500">
                     <CheckCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>ยังไม่มีการตรวจสอบความรู้</p>
-                    <p className="text-sm">กรุณาเขียนความเข้าใจของคุณและกดปุ่ม "ตรวจสอบความรู้"</p>
+                    <p>{t.enhancedLearn.noValidation}</p>
+                    <p className="text-sm">{t.enhancedLearn.writeAndValidate}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -551,14 +546,14 @@ export default function EnhancedLearnPage() {
                 <div className="flex items-center gap-3 text-orange-600 dark:text-orange-400">
                   <AlertCircle className="w-5 h-5" />
                   <div>
-                    <h3 className="font-medium">ไม่มีบทเรียนที่อัปโหลด</h3>
+                    <h3 className="font-medium">{t.enhancedLearn.noLesson}</h3>
                     <p className="text-sm text-orange-500 dark:text-orange-300">
-                      กรุณาอัปโหลดไฟล์บทเรียนของคุณก่อนเพื่อเริ่มการเรียนรู้
+                      {t.enhancedLearn.uploadLessonFirst}
                     </p>
                   </div>
                 </div>
                 <Button className="mt-4 glass-button" asChild>
-                  <a href="/upload">อัปโหลดบทเรียน</a>
+                  <a href="/upload">{t.enhancedLearn.uploadLesson}</a>
                 </Button>
               </CardContent>
             </Card>
