@@ -183,6 +183,45 @@ const en = {
     startLearning: "Start your learning journey by uploading your first lesson.",
     viewDetail: "View Details"
   },
+  hero: {
+    title: "Learn Smart with AI",
+    description: "Upload your lessons, share your understanding, and get personalized AI feedback to accelerate your learning.",
+    startLearning: "Start Learning",
+    login: "Login",
+    seeDemo: "See Demo",
+    uploadProcessTitle: "Upload & Process",
+    uploadProcessDesc: "Upload PDF, DOCX, or TXT files. Our system will automatically extract and process your content.",
+    aiAnalysisTitle: "AI Analysis",
+    aiAnalysisDesc: "Share your understanding. Our AI will analyze your knowledge and identify gaps.",
+    trackProgressTitle: "Track Progress",
+    trackProgressDesc: "Track your learning journey with detailed analytics and personalized recommendations."
+  },
+  howItWorks: {
+    title: "How It Works",
+    description: "Just a few steps to personalized AI-powered learning.",
+    steps: [
+      {
+        title: "Upload Your Lesson",
+        description: "Upload PDF, DOCX, or TXT files. Our system will extract and process your content automatically.",
+        step: "01"
+      },
+      {
+        title: "Share Your Understanding",
+        description: "Write what you understand from the lesson in your own words.",
+        step: "02"
+      },
+      {
+        title: "AI Analysis",
+        description: "Get detailed feedback and knowledge gap analysis from AI.",
+        step: "03"
+      },
+      {
+        title: "Track Progress",
+        description: "Monitor your learning journey with analytics and personalized recommendations.",
+        step: "04"
+      }
+    ]
+  },
 };
 
 export default en;
