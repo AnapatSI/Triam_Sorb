@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, BookOpen, Clock, Target, MessageSquare, FileText, Calendar, Brain, Upload, History } from "lucide-react"
 import { supabase, type LearningSession } from "@/lib/supabase"
 import { useAuth } from "@/components/AuthProvider"
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/components/LanguageProvider';
 
 export default function LessonDetailPage() {
   const params = useParams()
@@ -16,6 +18,8 @@ export default function LessonDetailPage() {
   const [lesson, setLesson] = useState<LearningSession | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const t = useTranslation();
+  const { language } = useLanguage();
 
   useEffect(() => {
     if (!params.id || !user?.id) return
@@ -82,7 +86,7 @@ export default function LessonDetailPage() {
       <div className="min-h-screen pt-32 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">กำลังโหลด...</h2>
+            <h2 className="text-2xl font-bold mb-4">{t.history.loading}</h2>
           </div>
         </div>
       </div>
@@ -94,11 +98,11 @@ export default function LessonDetailPage() {
       <div className="min-h-screen pt-32 pb-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">เกิดข้อผิดพลาด</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">{error || 'ไม่พบข้อมูลบทเรียน'}</p>
+            <h2 className="text-2xl font-bold mb-4">{t.history.errorTitle}</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-6">{error || t.history.notFound}</p>
             <Button onClick={() => router.push('/history')} className="glass-button">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              กลับไปหน้าประวัติ
+              {t.history.backToHistory}
             </Button>
           </div>
         </div>
@@ -118,15 +122,15 @@ export default function LessonDetailPage() {
               className="glass-button"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              กลับไปหน้าประวัติ
+              {t.history.backToHistory}
             </Button>
           </div>
           
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
-            รายละเอียดบทเรียน
+            {t.history.lessonDetail}
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            ดูเนื้อหาและความเข้าใจของคุณในบทเรียนนี้ พร้อมคำแนะนำจาก AI
+            {t.history.viewContent}
           </p>
         </div>
 
@@ -136,7 +140,7 @@ export default function LessonDetailPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">คะแนนความเข้าใจ</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.comprehensionScore}</p>
                   <p className={`text-3xl font-bold ${getScoreColor(lesson.comprehension_score || 0)}`}>
                     {lesson.comprehension_score || 0}%
                   </p>
@@ -152,9 +156,9 @@ export default function LessonDetailPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">วันที่เรียน</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.date}</p>
                   <p className="text-lg font-bold text-black dark:text-white">
-                    {new Date(lesson.created_at).toLocaleDateString('th-TH')}
+                    {new Date(lesson.created_at).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US')}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-gray-800 to-black rounded-xl flex items-center justify-center">
@@ -168,9 +172,9 @@ export default function LessonDetailPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">เวลาที่ใช้</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.timeSpent}</p>
                   <p className="text-3xl font-bold text-black dark:text-white">
-                    {lesson.time_spent || '0'} นาที
+                    {lesson.time_spent || '0'} {t.history.minutes}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-black to-gray-700 rounded-xl flex items-center justify-center">
@@ -189,7 +193,7 @@ export default function LessonDetailPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="h-5 w-5" />
-                  ข้อมูลบทเรียน
+                  {t.history.lessonInfo}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -208,15 +212,15 @@ export default function LessonDetailPage() {
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
                     <Calendar className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">วันที่เรียน</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.date}</p>
                       <p className="font-medium">{formatDate(lesson.created_at)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
                     <Clock className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                     <div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">เวลาที่ใช้</p>
-                      <p className="font-medium">{lesson.time_spent || 'ไม่ระบุ'}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.timeSpent}</p>
+                      <p className="font-medium">{lesson.time_spent || t.history.notSpecified}</p>
                     </div>
                   </div>
                 </div>
@@ -228,13 +232,13 @@ export default function LessonDetailPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="h-5 w-5" />
-                  เนื้อหาบทเรียน
+                  {t.history.lessonContent}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="prose prose-gray dark:prose-invert max-w-none">
                   <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {lesson.lesson_content || 'ไม่มีเนื้อหา'}
+                    {lesson.lesson_content || t.history.noContent}
                   </div>
                 </div>
               </CardContent>
@@ -245,13 +249,13 @@ export default function LessonDetailPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  ความเข้าใจของคุณ
+                  {t.history.yourUnderstanding}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="prose prose-gray dark:prose-invert max-w-none">
                   <div className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                    {lesson.user_understanding || 'ไม่มีการแสดงความเข้าใจ'}
+                    {lesson.user_understanding || t.history.noUnderstanding}
                   </div>
                 </div>
               </CardContent>
@@ -265,7 +269,7 @@ export default function LessonDetailPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="h-5 w-5" />
-                  คะแนนความเข้าใจ
+                  {t.history.comprehensionScore}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-center">
@@ -273,9 +277,9 @@ export default function LessonDetailPage() {
                   {lesson.comprehension_score || 0}%
                 </div>
                 <Badge variant={getScoreBadgeVariant(lesson.comprehension_score || 0)} className="text-sm">
-                  {lesson.comprehension_score >= 90 ? 'ดีเยี่ยม' : 
-                   lesson.comprehension_score >= 80 ? 'ดีมาก' :
-                   lesson.comprehension_score >= 70 ? 'ดี' : 'ต้องปรับปรุง'}
+                  {lesson.comprehension_score >= 90 ? t.history.excellent : 
+                   lesson.comprehension_score >= 80 ? t.history.veryGood :
+                   lesson.comprehension_score >= 70 ? t.history.good : t.history.needImprovement}
                 </Badge>
               </CardContent>
             </Card>
@@ -286,7 +290,7 @@ export default function LessonDetailPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MessageSquare className="h-5 w-5" />
-                    คำแนะนำจาก AI
+                    {t.history.aiAdvice}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -304,7 +308,7 @@ export default function LessonDetailPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="h-5 w-5" />
-                  การดำเนินการ
+                  {t.history.actions}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -314,7 +318,7 @@ export default function LessonDetailPage() {
                   size="lg"
                 >
                   <BookOpen className="h-4 w-4 mr-2" />
-                  เรียนบทเรียนใหม่
+                  {t.history.learnNewLesson}
                 </Button>
                 <Button 
                   onClick={() => router.push('/upload')} 
@@ -323,7 +327,7 @@ export default function LessonDetailPage() {
                   size="lg"
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  อัปโหลดบทเรียนใหม่
+                  {t.history.uploadNewLesson}
                 </Button>
                 <Button 
                   onClick={() => router.push('/history')} 
@@ -332,7 +336,7 @@ export default function LessonDetailPage() {
                   size="lg"
                 >
                   <History className="h-4 w-4 mr-2" />
-                  กลับไปหน้าประวัติ
+                  {t.history.backToHistory}
                 </Button>
               </CardContent>
             </Card>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { supabaseApi } from "@/lib/supabase"
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -13,6 +14,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const t = useTranslation()
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,30 +33,30 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>สมัครสมาชิก</CardTitle>
+          <CardTitle>{t.signup.title}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
             <Input
               type="email"
-              placeholder="อีเมล"
+              placeholder={t.signup.email}
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
             />
             <Input
               type="password"
-              placeholder="รหัสผ่าน"
+              placeholder={t.signup.password}
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
             />
             {error && <div className="text-red-500 text-sm">{error}</div>}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
+              {loading ? t.signup.signingUp : t.signup.signup}
             </Button>
             <div className="text-center text-sm mt-2">
-              มีบัญชีอยู่แล้ว? <a href="/login" className="underline">เข้าสู่ระบบ</a>
+              {t.signup.haveAccount} <a href="/login" className="underline">{t.signup.loginLink}</a>
             </div>
           </form>
         </CardContent>

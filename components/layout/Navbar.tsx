@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Menu, X, BookOpen, Upload, History, MessageSquare, User, Home } from "lucide-react"
 import { useAuth } from "@/components/AuthProvider"
+import { useLanguage } from "@/components/LanguageProvider"
 
 const navigation = [
   { name: "หน้าแรก", href: "/", icon: Home },
@@ -17,12 +18,15 @@ const navigation = [
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { language, setLanguage } = useLanguage()
   const pathname = usePathname()
   const { user, signOut, loading } = useAuth()
 
   const handleSignOut = async () => {
     await signOut()
   }
+
+  const handleLanguageChange = (lang: 'en' | 'th') => setLanguage(lang)
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 px-6 py-4">
@@ -58,6 +62,22 @@ export default function Navbar() {
           })}
         </div>
 
+        {/* Desktop Language Buttons */}
+        <div className="hidden md:flex items-center space-x-2 ml-4">
+          <button
+            className={`px-4 py-2 rounded ${language === 'en' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => handleLanguageChange('en')}
+          >
+            EN
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${language === 'th' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => handleLanguageChange('th')}
+          >
+            TH
+          </button>
+        </div>
+
         <div className="hidden md:flex items-center space-x-4">
           <ThemeToggle />
           {user ? (
@@ -65,12 +85,12 @@ export default function Navbar() {
               <Link href="/dashboard">
                 <Button variant="ghost" className="flex items-center space-x-2 text-gray-700 dark:text-gray-200 hover:text-black dark:hover:text-white">
                   <User className="w-4 h-4" />
-                  <span className="text-sm">{user.email}</span>
+                  {/* <span className="text-sm">{user.email}</span> */}
                 </Button>
               </Link>
-              <Button className="glass-button" onClick={handleSignOut} disabled={loading}>
+              {/* <Button className="glass-button" onClick={handleSignOut} disabled={loading}>
                 ออกจากระบบ
-              </Button>
+              </Button> */}
             </>
           ) : (
             <Button className="glass-button" asChild>
@@ -96,6 +116,21 @@ export default function Navbar() {
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
         <div className="md:hidden mt-4 pt-4 border-t border-white/20">
+          {/* Mobile Language Buttons */}
+          <div className="flex flex-col gap-2 mb-4">
+            <button
+              className={`w-full px-4 py-2 rounded ${language === 'en' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleLanguageChange('en')}
+            >
+              EN
+            </button>
+            <button
+              className={`w-full px-4 py-2 rounded ${language === 'th' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+              onClick={() => handleLanguageChange('th')}
+            >
+              TH
+            </button>
+          </div>
           <div className="space-y-2">
             {navigation.map((item) => {
               const Icon = item.icon
