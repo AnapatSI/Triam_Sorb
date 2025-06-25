@@ -41,6 +41,29 @@ const th = {
   dashboard: {
     title: "แดชบอร์ด",
     welcome: "ยินดีต้อนรับสู่ระบบการเรียนรู้ AI ติดตามความก้าวหน้าและเริ่มต้นการเดินทางของคุณ",
+    profile: "ข้อมูลผู้ใช้",
+    email: "อีเมล",
+    date_regis: "สมัครเมื่อ",
+    logout: "ออกจากระบบ",
+    studied_already: "บทเรียนที่เรียนแล้ว",
+    loading: "กำลังโหลด...",
+    userType: "ผู้ใช้ระบบการเรียนรู้ AI",
+    actions: "การดำเนินการ",
+    startLearning: "เริ่มเรียนรู้",
+    uploadLesson: "อัปโหลดบทเรียน",
+    history: "ประวัติการเรียนรู้",
+    totalLessons: "บทเรียนทั้งหมด",
+    avgScore: "คะแนนเฉลี่ย",
+    noScore: "ยังไม่มีคะแนน",
+    avgScoreLabel: "ความเข้าใจเฉลี่ย",
+    timeSpent: "เวลาที่ใช้เรียน",
+    minutes: "นาที",
+    totalTimeLabel: "เวลารวมที่ใช้เรียน",
+    recentLessons: "บทเรียนล่าสุด",
+    score: "คะแนน",
+    viewAllHistory: "ดูประวัติทั้งหมด",
+    startLearningTitle: "เริ่มต้นการเรียนรู้ของคุณ",
+    noLessons: "ยังไม่มีบทเรียนในระบบ เริ่มต้นด้วยการอัปโหลดบทเรียนแรกของคุณ"
   },
   signup: {
     title: "สมัครสมาชิก",
@@ -222,6 +245,10 @@ const th = {
       }
     ]
   },
+  language: {
+    code: "th",
+    label: "ไทย"
+  }
 };
 
 export default th;

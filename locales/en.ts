@@ -41,6 +41,29 @@ const en = {
   dashboard: {
     title: "Dashboard",
     welcome: "Welcome to the AI learning system. Track your progress and start your journey.",
+    profile: "Profile",
+    email: "Email",
+    date_regis: "Date sign up",
+    logout: "Log out",
+    studied_already: "Lesson is already studied",
+    loading: "Loading...",
+    userType: "AI Learning System User",
+    actions: "Actions",
+    startLearning: "Start Learning",
+    uploadLesson: "Upload Lesson",
+    history: "Learning History",
+    totalLessons: "Total Lessons",
+    avgScore: "Average Score",
+    noScore: "No score yet",
+    avgScoreLabel: "Average comprehension",
+    timeSpent: "Time Spent",
+    minutes: "minutes",
+    totalTimeLabel: "Total learning time",
+    recentLessons: "Recent Lessons",
+    score: "Score",
+    viewAllHistory: "View All History",
+    startLearningTitle: "Start Your Learning Journey",
+    noLessons: "No lessons in the system yet. Start by uploading your first lesson."
   },
   signup: {
     title: "Sign Up",
@@ -226,6 +249,10 @@ const en = {
       }
     ]
   },
+  language: {
+    code: "en",
+    label: "English"
+  }
 };
 
 export default en;
