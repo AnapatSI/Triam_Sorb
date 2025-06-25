@@ -1,8 +1,13 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Upload, Brain, TrendingUp } from "lucide-react"
+import { User } from "@supabase/supabase-js"
 
-export default function Hero() {
+interface HeroProps {
+  user: User | null
+}
+
+export default function Hero({ user }: HeroProps) {
   return (
     <section className="pt-32 pb-20 px-4">
       <div className="max-w-6xl mx-auto text-center">
@@ -14,12 +19,21 @@ export default function Hero() {
             อัปโหลดบทเรียนของคุณ แชร์ความเข้าใจ และรับข้อเสนอแนะจาก AI ที่ปรับแต่งเฉพาะบุคคลเพื่อเร่งการเรียนรู้ของคุณ
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/upload">
-              <Button size="lg" className="glass-button text-lg px-8 py-4">
-                เริ่มเรียนรู้
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+            {user ? (
+              <Link href="/learn">
+                <Button size="lg" className="glass-button text-lg px-8 py-4">
+                  เริ่มเรียนรู้
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <Button size="lg" className="glass-button text-lg px-8 py-4">
+                  เข้าสู่ระบบ
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            )}
             <Button variant="outline" size="lg" className="glass-button text-lg px-8 py-4">
               ดูตัวอย่าง
             </Button>

@@ -1,9 +1,10 @@
-import { createClient } from "@supabase/supabase-js"
+import { createBrowserClient } from '@supabase/ssr'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Client-side Supabase client (for use in client components)
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
 
 // Types for our database tables
 export interface LearningSession {
@@ -16,6 +17,8 @@ export interface LearningSession {
   comprehension_score: number
   created_at: string
   updated_at: string
+  category?: string
+  time_spent?: string
 }
 
 export interface User {
@@ -62,13 +65,17 @@ export const supabaseApi = {
     return { data, error }
   },
 
-  async getLearningHistory(userId: string) {
-    const { data, error } = await supabase
+  async getLearningHistory(userId: string, page: number, pageSize: number) {
+    const start = (page - 1) * pageSize
+    const end = start + pageSize - 1
+
+    const { data, error, count } = await supabase
       .from("learning_sessions")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-    return { data, error }
+      .range(start, end)
+    return { data, error, count }
   },
 
   async getLearningSession(id: string) {

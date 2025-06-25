@@ -5,7 +5,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { Menu, X, BookOpen, Upload, History, MessageSquare } from "lucide-react"
+import { Menu, X, BookOpen, Upload, History, MessageSquare, User } from "lucide-react"
+import { useAuth } from "@/components/AuthProvider"
 
 const navigation = [
   { name: "หน้าแรก", href: "/", icon: BookOpen },
@@ -17,6 +18,11 @@ const navigation = [
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { user, signOut, loading } = useAuth()
+
+  const handleSignOut = async () => {
+    await signOut()
+  }
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-card mx-4 mt-4 px-6 py-4">
@@ -54,7 +60,23 @@ export default function Navbar() {
 
         <div className="hidden md:flex items-center space-x-4">
           <ThemeToggle />
-          <Button className="glass-button">เข้าสู่ระบบ</Button>
+          {user ? (
+            <>
+              <Link href="/dashboard">
+                <Button variant="ghost" className="flex items-center space-x-2">
+                  <User className="w-4 h-4" />
+                  <span className="text-sm">{user.email}</span>
+                </Button>
+              </Link>
+              <Button className="glass-button" onClick={handleSignOut} disabled={loading}>
+                ออกจากระบบ
+              </Button>
+            </>
+          ) : (
+            <Button className="glass-button" asChild>
+              <Link href="/login">เข้าสู่ระบบ</Link>
+            </Button>
+          )}
         </div>
 
         {/* Mobile menu button */}
@@ -94,8 +116,26 @@ export default function Navbar() {
                 </Link>
               )
             })}
+            {user && (
+              <Link
+                href="/dashboard"
+                className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-white/20 dark:hover:bg-white/10"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User className="w-5 h-5" />
+                <span className="font-medium">แดชบอร์ด</span>
+              </Link>
+            )}
             <div className="pt-2">
-              <Button className="w-full glass-button">เข้าสู่ระบบ</Button>
+              {user ? (
+                <Button className="w-full glass-button" onClick={handleSignOut} disabled={loading}>
+                  ออกจากระบบ
+                </Button>
+              ) : (
+                <Button className="w-full glass-button" asChild>
+                  <Link href="/login">เข้าสู่ระบบ</Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
