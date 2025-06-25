@@ -5,9 +5,10 @@ import { User } from "@supabase/supabase-js"
 
 interface HeroProps {
   user: User | null
+  language: 'en' | 'th'
 }
 
-export default function Hero({ user }: HeroProps) {
+export default function Hero({ user, language }: HeroProps) {
   return (
     <section className="pt-32 pb-20 px-4 mt-12 mb-12">
       <div className="max-w-6xl mx-auto text-center">

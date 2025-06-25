@@ -11,6 +11,8 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { supabaseApi } from "@/lib/supabase"
 import { useAuth } from "@/components/AuthProvider"
 import { useRouter } from "next/navigation"
+import { useTranslation } from '@/hooks/useTranslation';
+import { useLanguage } from '@/components/LanguageProvider';
 
 const PAGE_SIZE = 5
 
@@ -39,6 +41,8 @@ export default function HistoryPage() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const router = useRouter()
+  const t = useTranslation();
+  const { language } = useLanguage();
 
   // Debounced search function
   const debouncedSearch = useCallback(
@@ -140,10 +144,10 @@ export default function HistoryPage() {
     <div className="min-h-screen pt-32 pb-20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mt-12 mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             ประวัติการเรียนรู้
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-1xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             ติดตามความก้าวหน้าและทบทวนการเดินทางการเรียนรู้ของคุณด้วยการวิเคราะห์ที่ละเอียด
           </p>
         </div>
@@ -154,7 +158,7 @@ export default function HistoryPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">คะแนนเฉลี่ย</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.avgScore}</p>
                   <p className="text-3xl font-bold text-black dark:text-white">{averageScore}%</p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-black to-gray-800 rounded-xl flex items-center justify-center">
@@ -168,7 +172,7 @@ export default function HistoryPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">บทเรียนทั้งหมด</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.totalLessons}</p>
                   <p className="text-3xl font-bold text-black dark:text-white">{totalLessons}</p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-gray-800 to-black rounded-xl flex items-center justify-center">
@@ -182,8 +186,8 @@ export default function HistoryPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">เวลาที่ใช้</p>
-                  <p className="text-3xl font-bold text-black dark:text-white">{totalTimeSpent} นาที</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.totalTime}</p>
+                  <p className="text-3xl font-bold text-black dark:text-white">{totalTimeSpent} {t.history.minutes}</p>
                 </div>
                 <div className="w-12 h-12 bg-gradient-to-br from-black to-gray-700 rounded-xl flex items-center justify-center">
                   <Clock className="w-6 h-6 text-white" />
@@ -199,7 +203,7 @@ export default function HistoryPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Filter className="w-5 h-5" />
-                กรองและค้นหา
+                {t.history.filterAndSearch}
               </CardTitle>
               {hasActiveFilters && (
                 <Button
@@ -209,7 +213,7 @@ export default function HistoryPage() {
                   className="text-gray-500 hover:text-gray-700"
                 >
                   <X className="w-4 h-4 mr-1" />
-                  ล้างตัวกรอง
+                  {t.history.clearFilters}
                 </Button>
               )}
             </div>
@@ -220,7 +224,7 @@ export default function HistoryPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
-                    placeholder="ค้นหาบทเรียน..."
+                    placeholder={t.history.searchPlaceholder}
                     defaultValue={searchTerm}
                     onChange={(e) => debouncedSearch(e.target.value)}
                     className="pl-10 glass border-0"
@@ -229,10 +233,10 @@ export default function HistoryPage() {
               </div>
               <Select value={filterCategory} onValueChange={setFilterCategory}>
                 <SelectTrigger className="w-full md:w-48 glass border-0">
-                  <SelectValue placeholder="หมวดหมู่" />
+                  <SelectValue placeholder={t.history.category} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">ทุกหมวดหมู่</SelectItem>
+                  <SelectItem value="all">{t.history.allCategories}</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
@@ -242,12 +246,12 @@ export default function HistoryPage() {
               </Select>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-full md:w-48 glass border-0">
-                  <SelectValue placeholder="เรียงตาม" />
+                  <SelectValue placeholder={t.history.sortBy} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="date">วันที่</SelectItem>
-                  <SelectItem value="score">คะแนน</SelectItem>
-                  <SelectItem value="title">ชื่อเรื่อง</SelectItem>
+                  <SelectItem value="date">{t.history.sortDate}</SelectItem>
+                  <SelectItem value="score">{t.history.sortScore}</SelectItem>
+                  <SelectItem value="title">{t.history.sortTitle}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -256,10 +260,10 @@ export default function HistoryPage() {
 
         {/* Loading/Error State */}
         {loading && (
-          <div className="text-center py-12 text-gray-500">กำลังโหลด...</div>
+          <div className="text-center py-12 text-gray-500">{t.history.loading}</div>
         )}
         {error && (
-          <div className="text-center py-12 text-red-500">{error}</div>
+          <div className="text-center py-12 text-red-500">{t.history.error}</div>
         )}
 
         {/* Learning History List */}
@@ -280,11 +284,11 @@ export default function HistoryPage() {
                             <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
                               <div className="flex items-center gap-1">
                                 <Calendar className="w-4 h-4" />
-                                <span>{new Date(item.created_at).toLocaleDateString('th-TH')}</span>
+                                <span>{new Date(item.created_at).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US')}</span>
                               </div>
                               <div className="flex items-center gap-1">
                                 <Clock className="w-4 h-4" />
-                                <span>{item.time_spent || "-"}</span>
+                                <span>{item.time_spent || '-'}</span>
                               </div>
                               <Badge variant="outline" className="glass">
                                 {item.category || "-"}
@@ -296,14 +300,14 @@ export default function HistoryPage() {
                       <div className="flex items-center gap-4">
                         <div className="text-right">
                           <p className={`text-2xl font-bold ${getScoreColor(item.comprehension_score || 0)}`}>{item.comprehension_score || 0}%</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">คะแนนความเข้าใจ</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{t.history.comprehensionScore}</p>
                         </div>
                         <Button 
                           variant="outline" 
                           className="glass-button"
                           onClick={() => router.push(`/history/${item.id}`)}
                         >
-                          ดูรายละเอียด
+                          {t.history.viewDetail}
                         </Button>
                       </div>
                     </div>
@@ -362,22 +366,22 @@ export default function HistoryPage() {
                 <FileText className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-2">
-                {hasActiveFilters ? "ไม่พบบทเรียนที่ตรงกับเกณฑ์" : "ไม่พบบทเรียน"}
+                {hasActiveFilters ? t.history.noLessonsWithFilters : t.history.noLessons}
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 {hasActiveFilters 
-                  ? "ลองเปลี่ยนเกณฑ์การค้นหาหรือล้างตัวกรอง"
-                  : "เริ่มต้นการเรียนรู้ของคุณด้วยการอัปโหลดบทเรียนแรก"
+                  ? t.history.tryChangingFilters
+                  : t.history.startLearning
                 }
               </p>
               <div className="flex gap-2 justify-center">
                 {hasActiveFilters && (
                   <Button variant="outline" className="glass-button" onClick={clearFilters}>
-                    ล้างตัวกรอง
+                    {t.history.clearFilters}
                   </Button>
                 )}
                 <Button className="glass-button" asChild>
-                  <a href="/upload">อัปโหลดบทเรียนใหม่</a>
+                  <a href="/upload">{t.history.uploadNewLesson}</a>
                 </Button>
               </div>
             </CardContent>

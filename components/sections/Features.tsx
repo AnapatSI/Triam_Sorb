@@ -33,7 +33,7 @@ const features = [
   },
 ]
 
-export default function Features() {
+export default function Features({ language }: { language: 'en' | 'th' }) {
   return (
     <section className="py-20 px-4">
       <div className="max-w-6xl mx-auto">

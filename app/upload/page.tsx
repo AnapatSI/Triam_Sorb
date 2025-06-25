@@ -3,11 +3,13 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, FileText, CheckCircle, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { FileParser, type ParsedContent } from "@/lib/file-parser"
+import { useLanguage } from '@/components/LanguageProvider'
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null)
@@ -15,6 +17,8 @@ export default function UploadPage() {
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [parsedContent, setParsedContent] = useState<ParsedContent | null>(null)
   const { toast } = useToast()
+  const { language } = useLanguage()
+  const t = useTranslation()
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
@@ -88,9 +92,9 @@ export default function UploadPage() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12 mt-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
-            อัปโหลดบทเรียนของคุณ
+            {t.upload.title}
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-1xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             อัปโหลดเนื้อหาการศึกษาของคุณและให้ AI ของเราช่วยให้คุณเรียนรู้ได้อย่างมีประสิทธิภาพมากขึ้น
           </p>
         </div>
@@ -101,9 +105,9 @@ export default function UploadPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="w-5 h-5" />
-                อัปโหลดไฟล์
+                {t.upload.uploadFile}
               </CardTitle>
-              <CardDescription>รูปแบบที่รองรับ: TXT เท่านั้น (สูงสุด 10MB)</CardDescription>
+              <CardDescription>{t.upload.supportedFormats}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-black dark:hover:border-white transition-colors">
@@ -118,10 +122,10 @@ export default function UploadPage() {
                   <div className="w-16 h-16 bg-gradient-to-br from-black to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
                     <Upload className="w-8 h-8 text-white" />
                   </div>
-                  <p className="text-lg font-medium mb-2">คลิกเพื่ออัปโหลดหรือลากและวาง</p>
-                  <p className="text-gray-500 dark:text-gray-400">ไฟล์ TXT เท่านั้น</p>
+                  <p className="text-lg font-medium mb-2">{t.upload.clickToUpload}</p>
+                  <p className="text-gray-500 dark:text-gray-400">{t.upload.onlyTxt}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    * กรุณาแปลงไฟล์ PDF หรือ DOCX เป็น TXT ก่อนอัปโหลด
+                    {t.upload.convertNote}
                   </p>
                 </label>
               </div>
@@ -141,12 +145,12 @@ export default function UploadPage() {
 
               {parsedContent && (
                 <div className="glass rounded-xl p-4 bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-                  <h4 className="font-medium text-blue-700 dark:text-blue-400 mb-2">ข้อมูลไฟล์ที่ประมวลผลแล้ว</h4>
+                  <h4 className="font-medium text-blue-700 dark:text-blue-400 mb-2">{t.upload.processedInfo}</h4>
                   <div className="space-y-1 text-sm text-blue-600 dark:text-blue-300">
-                    <p>• ชื่อ: {parsedContent.title}</p>
-                    <p>• จำนวนคำ: {parsedContent.wordCount.toLocaleString()} คำ</p>
-                    <p>• เวลาอ่านโดยประมาณ: {parsedContent.estimatedReadTime} นาที</p>
-                    <p>• จำนวนส่วน: {parsedContent.sections.length} ส่วน</p>
+                    <p>• {t.upload.fileName}: {parsedContent.title}</p>
+                    <p>• {t.upload.wordCount}: {parsedContent.wordCount.toLocaleString()}</p>
+                    <p>• {t.upload.estimatedReadTime}: {parsedContent.estimatedReadTime}</p>
+                    <p>• {t.upload.sectionCount}: {parsedContent.sections.length}</p>
                   </div>
                 </div>
               )}
@@ -157,17 +161,21 @@ export default function UploadPage() {
                 className="w-full glass-button"
                 size="lg"
               >
-                {uploading ? "กำลังประมวลผล..." : uploadSuccess ? "อัปโหลดสำเร็จแล้ว" : "อัปโหลดและประมวลผลไฟล์"}
+                {uploading
+                  ? t.upload.processing
+                  : uploadSuccess
+                  ? t.upload.uploadSuccess
+                  : t.upload.uploadAndProcess}
               </Button>
 
               {uploadSuccess && (
                 <div className="glass rounded-xl p-4 bg-green-50/50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
                   <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
                     <CheckCircle className="w-5 h-5" />
-                    <span className="font-medium">ประมวลผลไฟล์สำเร็จ!</span>
+                    <span className="font-medium">{t.upload.success}</span>
                   </div>
                   <p className="text-sm text-green-600 dark:text-green-300 mt-1">
-                    บทเรียนของคุณพร้อมแล้ว คุณสามารถดำเนินการเพื่อแชร์ความเข้าใจของคุณได้
+                    {t.upload.readyToShare}
                   </p>
                 </div>
               )}
@@ -179,7 +187,7 @@ export default function UploadPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertCircle className="w-5 h-5" />
-                แนวทางการอัปโหลด
+                {t.upload.qualityContent}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -189,9 +197,9 @@ export default function UploadPage() {
                     <span className="text-xs font-bold text-white dark:text-black">1</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">เลือกเนื้อหาที่มีคุณภาพ</h4>
+                    <h4 className="font-medium">{t.upload.qualityContent}</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      อัปโหลดบทเรียนที่มีโครงสร้างที่ดีพร้อมแนวคิดที่ชัดเจนเพื่อการวิเคราะห์ AI ที่ดีขึ้น
+                      {t.upload.qualityContentDesc}
                     </p>
                   </div>
                 </div>
@@ -201,9 +209,9 @@ export default function UploadPage() {
                     <span className="text-xs font-bold text-white dark:text-black">2</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">ขีดจำกัดขนาดไฟล์</h4>
+                    <h4 className="font-medium">{t.upload.fileSizeLimit}</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      เก็บไฟล์ไว้ต่ำกว่า 10MB เพื่อความเร็วในการประมวลผลและประสิทธิภาพที่ดีที่สุด
+                      {t.upload.fileSizeLimitDesc}
                     </p>
                   </div>
                 </div>
@@ -213,9 +221,9 @@ export default function UploadPage() {
                     <span className="text-xs font-bold text-white dark:text-black">3</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">รูปแบบที่รองรับ</h4>
+                    <h4 className="font-medium">{t.upload.supportedFormat}</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      ขณะนี้รองรับเฉพาะไฟล์ TXT เท่านั้น กรุณาแปลงไฟล์ PDF หรือ DOCX เป็น TXT ก่อนอัปโหลด
+                      {t.upload.supportedFormatDesc}
                     </p>
                   </div>
                 </div>
@@ -225,9 +233,9 @@ export default function UploadPage() {
                     <span className="text-xs font-bold text-white dark:text-black">4</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">ความเป็นส่วนตัวและความปลอดภัย</h4>
+                    <h4 className="font-medium">{t.upload.privacy}</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      ไฟล์ของคุณถูกเข้ารหัสและประมวลผลอย่างปลอดภัย เราไม่เคยแชร์เนื้อหาของคุณ
+                      {t.upload.privacyDesc}
                     </p>
                   </div>
                 </div>
@@ -236,7 +244,7 @@ export default function UploadPage() {
               {uploadSuccess && (
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <Button className="w-full glass-button" asChild>
-                    <a href="/learn">Continue to Learning</a>
+                    <a href="/learn">{t.upload.continueToLearning}</a>
                   </Button>
                 </div>
               )}
