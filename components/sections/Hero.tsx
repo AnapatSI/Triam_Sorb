@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Upload, Brain, TrendingUp } from "lucide-react"
 import { User } from "@supabase/supabase-js"
+import { useTranslation } from "@/hooks/useTranslation"
 
 interface HeroProps {
   user: User | null
@@ -9,34 +10,36 @@ interface HeroProps {
 }
 
 export default function Hero({ user, language }: HeroProps) {
+  const t = useTranslation();
+
   return (
     <section className="pt-32 pb-20 px-4 mt-2 mb-12">
       <div className="max-w-6xl mx-auto text-center">
         <div className="glass-card pt-12 pb-12 mb-12">
           <h1 className="text-4xl md:text-5xl font-bold pb-4 mb-8 bg-gradient-to-r from-black via-gray-800 to-black dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
-            เรียนรู้อย่างชาญฉลาดด้วย AI
+            {t.hero.title}
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            อัปโหลดบทเรียนของคุณ แชร์ความเข้าใจ และรับข้อเสนอแนะจาก AI ที่ปรับแต่งเฉพาะบุคคลเพื่อเร่งการเรียนรู้ของคุณ
+            {t.hero.description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {user ? (
               <Link href="/learn">
                 <Button size="lg" className="glass-button text-lg px-8 py-4">
-                  เริ่มเรียนรู้
+                  {t.hero.startLearning}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             ) : (
               <Link href="/login">
                 <Button size="lg" className="glass-button text-lg px-8 py-4">
-                  เข้าสู่ระบบ
+                  {t.hero.login}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             )}
             <Button variant="outline" size="lg" className="glass-button text-lg px-8 py-4">
-              ดูตัวอย่าง
+              {t.hero.seeDemo}
             </Button>
           </div>
         </div>
@@ -46,9 +49,11 @@ export default function Hero({ user, language }: HeroProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-black to-gray-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Upload className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">อัปโหลดและประมวลผล</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              {t.hero.uploadProcessTitle}
+            </h3>
             <p className="text-gray-600 dark:text-gray-300">
-              อัปโหลดไฟล์ PDF, DOCX หรือ TXT ระบบของเราจะสกัดและประมวลผลเนื้อหาของคุณโดยอัตโนมัติ
+              {t.hero.uploadProcessDesc}
             </p>
           </div>
 
@@ -56,9 +61,11 @@ export default function Hero({ user, language }: HeroProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-gray-800 to-black rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Brain className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">การวิเคราะห์ด้วย AI</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              {t.hero.aiAnalysisTitle}
+            </h3>
             <p className="text-gray-600 dark:text-gray-300">
-              แชร์สิ่งที่คุณเข้าใจ AI ของเราจะวิเคราะห์ความเข้าใจของคุณและระบุช่องว่างของความรู้
+              {t.hero.aiAnalysisDesc}
             </p>
           </div>
 
@@ -66,9 +73,11 @@ export default function Hero({ user, language }: HeroProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-black to-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <TrendingUp className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">ติดตามความก้าวหน้า</h3>
+            <h3 className="text-xl font-semibold mb-2">
+              {t.hero.trackProgressTitle}
+            </h3>
             <p className="text-gray-600 dark:text-gray-300">
-              ติดตามการเดินทางการเรียนรู้ของคุณด้วยการวิเคราะห์ที่ละเอียดและคำแนะนำที่ปรับแต่งเฉพาะบุคคล
+              {t.hero.trackProgressDesc}
             </p>
           </div>
         </div>
