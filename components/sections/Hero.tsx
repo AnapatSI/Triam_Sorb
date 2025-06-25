@@ -15,17 +15,17 @@ export default function Hero({ user, language }: HeroProps) {
   return (
     <section className="pt-32 pb-20 px-4 mt-2 mb-12">
       <div className="max-w-6xl mx-auto text-center">
-        <div className="glass-card pt-12 pb-12 mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold pb-4 mb-8 bg-gradient-to-r from-black via-gray-800 to-black dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
+        <div className="glass-card pt-6 pb-6 mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold pb-4  bg-gradient-to-r from-black via-gray-800 to-black dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
             {t.hero.title}
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl md:text-1xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
             {t.hero.description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             {user ? (
               <Link href="/learn">
-                <Button size="lg" className="glass-button text-lg px-8 py-4">
+                <Button size="lg" className="glass-button text-lg px-8 py-4 dark:text-white">
                   {t.hero.startLearning}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
@@ -38,9 +38,9 @@ export default function Hero({ user, language }: HeroProps) {
                 </Button>
               </Link>
             )}
-            <Button variant="outline" size="lg" className="glass-button text-lg px-8 py-4">
+            {/* <Button variant="outline" size="lg" className="glass-button text-lg px-8 py-4">
               {t.hero.seeDemo}
-            </Button>
+            </Button> */}
           </div>
         </div>
 

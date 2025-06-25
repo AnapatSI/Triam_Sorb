@@ -131,11 +131,11 @@ export default function LearnPage() {
   return (
     <div className="min-h-screen pt-36 pb-20 px-5">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12 mt-12">
-          <h1 className="text-4xl md:text-5xl font-bold pb-3 mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold pb-3 mb-2 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             {t.learn.title}
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-1xl mx-auto">
             {t.learn.description}
           </p>
         </div>
@@ -260,16 +260,6 @@ export default function LearnPage() {
                     {analysisResult.feedback}
                   </p>
                 </div>
-
-                {/* Raw Gemini Response (Debug/Info) */}
-                {analysisResult.rawGeminiResponse && (
-                  <div className="glass rounded-xl p-6">
-                    <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-200">Raw Gemini Response</h3>
-                    <pre className="bg-gray-100 dark:bg-gray-800 p-2 rounded text-xs overflow-x-auto max-h-60 whitespace-pre-wrap">
-                      {analysisResult.rawGeminiResponse}
-                    </pre>
-                  </div>
-                )}
 
                 {/* Strengths */}
                 {analysisResult.strengths.length > 0 && (
