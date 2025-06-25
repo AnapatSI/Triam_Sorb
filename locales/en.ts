@@ -36,11 +36,40 @@ const en = {
     supportedFormat: "Supported format",
     supportedFormatDesc: "Currently only TXT files are supported. Please convert PDF or DOCX to TXT before uploading.",
     privacy: "Privacy and Security",
-    privacyDesc: "Your files are encrypted and processed securely. We never share your content."
+    privacyDesc: "Your files are encrypted and processed securely. We never share your content.",
+    textInputFileName: "Text Input",
+    textInputPreview: "Preview of entered text",
+    uploadTabFile: "Upload File",
+    uploadTabText: "Enter Text",
+    textInputPlaceholder: "Paste or type your text here...",
+    textInputNote: "Only Thai or English text is supported."
   },
   dashboard: {
     title: "Dashboard",
     welcome: "Welcome to the AI learning system. Track your progress and start your journey.",
+    profile: "Profile",
+    email: "Email",
+    date_regis: "Date sign up",
+    logout: "Log out",
+    studied_already: "Lesson is already studied",
+    loading: "Loading...",
+    userType: "AI Learning System User",
+    actions: "Actions",
+    startLearning: "Start Learning",
+    uploadLesson: "Upload Lesson",
+    history: "Learning History",
+    totalLessons: "Total Lessons",
+    avgScore: "Average Score",
+    noScore: "No score yet",
+    avgScoreLabel: "Average comprehension",
+    timeSpent: "Time Spent",
+    minutes: "minutes",
+    totalTimeLabel: "Total learning time",
+    recentLessons: "Recent Lessons",
+    score: "Score",
+    viewAllHistory: "View All History",
+    startLearningTitle: "Start Your Learning Journey",
+    noLessons: "No lessons in the system yet. Start by uploading your first lesson."
   },
   signup: {
     title: "Sign Up",
@@ -188,44 +217,48 @@ const en = {
     delete: "Delete"
   },
   hero: {
-    title: "Learn Smart with AI",
-    description: "Upload your lessons, share your understanding, and get personalized AI feedback to accelerate your learning.",
-    startLearning: "Start Learning",
-    login: "Login",
-    seeDemo: "See Demo",
-    uploadProcessTitle: "Upload & Process",
-    uploadProcessDesc: "Upload PDF, DOCX, or TXT files. Our system will automatically extract and process your content.",
-    aiAnalysisTitle: "AI Analysis",
-    aiAnalysisDesc: "Share your understanding. Our AI will analyze your knowledge and identify gaps.",
-    trackProgressTitle: "Track Progress",
-    trackProgressDesc: "Track your learning journey with detailed analytics and personalized recommendations."
+    title: "Welcome to Triam Sorb",
+    description: "Input your study content, share your understanding, and receive personalized analysis from Gemini AI to enhance your learning efficiency",
+    startStudying: "Start Learning",
+    login: "Sign In",
+    tryDemo: "Try Demo",
+    textAnalysisTitle: "Content Analysis",
+    textAnalysisDesc: "Input the content you want to learn. Our system will process and prepare it for comprehensive analysis",
+    comprehensionCheckTitle: "Understanding Assessment",
+    comprehensionCheckDesc: "Share your understanding and AI will evaluate your comprehension level and identify knowledge gaps",
+    aiRecommendationsTitle: "AI Recommendations",
+    aiRecommendationsDesc: "Get personalized suggestions on what to study further or confirmation that you're ready to move forward"
   },
   howItWorks: {
     title: "How It Works",
-    description: "Just a few steps to personalized AI-powered learning.",
+    description: "Simple steps to analyze your understanding and improve your learning with Gemini AI",
     steps: [
       {
-        title: "Upload Your Lesson",
-        description: "Upload PDF, DOCX, or TXT files. Our system will extract and process your content automatically.",
+        title: "Input Study Content",
+        description: "Type or paste the content you want to learn into the text field. The system will process it instantly",
         step: "01"
       },
       {
         title: "Share Your Understanding",
-        description: "Write what you understand from the lesson in your own words.",
+        description: "Write an explanation of what you understood from the content using your own words",
         step: "02"
       },
       {
-        title: "AI Analysis",
-        description: "Get detailed feedback and knowledge gap analysis from AI.",
+        title: "Gemini AI Analysis",
+        description: "AI compares your understanding with the original content and evaluates your comprehension level",
         step: "03"
       },
       {
-        title: "Track Progress",
-        description: "Monitor your learning journey with analytics and personalized recommendations.",
+        title: "Receive Learning Recommendations",
+        description: "Get detailed analysis of how much you understand and which areas need further study",
         step: "04"
       }
     ]
   },
+  language: {
+    code: "en",
+    label: "English"
+  }
 };
 
 export default en;

@@ -5,6 +5,7 @@ import { useAuth } from "@/components/AuthProvider"
 import { useLanguage } from '@/components/LanguageProvider'
 import Hero from "@/components/sections/Hero"
 import HowItWorks from "@/components/sections/HowItWorks"
+import { Lightbulb } from "lucide-react"
 
 export default function HomePage() {
   const { user } = useAuth()

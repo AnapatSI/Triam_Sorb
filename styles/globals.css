@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 20px;
+  font-family: THSarabunPSK;
+  font-weight: 400; /* ทำให้ฟอนต์บางลง */
+  font-size: 14px; /* ลดขนาดฟอนต์พื้นฐาน */
+  line-height: 1.4; /* ปรับความสูงบรรทัด */
+
 }
 
 @layer utilities {
@@ -91,5 +94,69 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  /* ปรับขนาดฟอนต์ให้เล็กลงสำหรับ elements ต่างๆ */
+  h1 {
+    font-weight: 300;
+    font-size: 1.8rem; /* ลดจาก default */
+  }
+  
+  h2 {
+    font-weight: 300;
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-weight: 300;
+    font-size: 1.2rem;
+  }
+  
+  h4, h5, h6 {
+    font-weight: 300;
+    font-size: 1rem;
+  }
+  
+  p {
+    font-weight: 300;
+    font-size: 2rem;
+    line-height: 1.5;
+  }
+  
+  /* ปรับขนาดฟอนต์สำหรับ input และ button */
+  input, button, select, textarea {
+    font-weight: 300;
+    font-size: 0.85rem;
+  }
+  
+  /* ปรับขนาดฟอนต์สำหรับ navigation */
+  nav {
+    font-weight: 300;
+    font-size: 0.85rem;
+  }
+  
+  /* ปรับขนาดฟอนต์สำหรับ small text */
+  small, .text-sm {
+    font-weight: 300;
+    font-size: 0.75rem;
+  }
+}
+
+/* เพิ่ม utility classes สำหรับฟอนต์บางและเล็ก */
+@layer utilities {
+  .font-thin {
+    font-weight: 200;
+  }
+  
+  .font-extra-light {
+    font-weight: 300;
+  }
+  
+  .text-xs {
+    font-size: 0.7rem;
+  }
+  
+  .text-xxs {
+    font-size: 0.6rem;
   }
 }

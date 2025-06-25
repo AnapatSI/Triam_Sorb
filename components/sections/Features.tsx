@@ -41,7 +41,7 @@ export default function Features({ language }: { language: 'en' | 'th' }) {
           <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-black to-gray-800 dark:from-white dark:to-gray-200 bg-clip-text text-transparent">
             คุณสมบัติที่ทรงพลัง
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          <p className="text-2xl md:text-3xl font-bold text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             ทุกสิ่งที่คุณต้องการเพื่อเพิ่มประสบการณ์การเรียนรู้ของคุณด้วยเทคโนโลยี AI ที่ล้ำสมัย
           </p>
         </div>
