@@ -31,10 +31,10 @@ export default function HomePage() {
         </button>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
-        <Hero user={user} />
-        <Features />
-        <HowItWorks />
-        <CTA user={user} />
+        <Hero user={user} language={language} />
+        {/* <Features /> */}
+        <HowItWorks language={language} />
+        {/* <CTA user={user} /> */}
       </Suspense>
     </main>
   )
